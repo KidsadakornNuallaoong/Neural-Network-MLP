@@ -3,33 +3,52 @@
 
 using namespace std;
 
-int main(){
-    // * input layer
-    float input[3][3] = {
-        {0, 0, 1},
-        {1, 1, 0},
-        {1, 0, 1}
-    };
+double hiddenFunction(double input, double weight) {
+    return input * weight;
+}
 
-    float weights[3][3] = {
-        {0.5, 0.5, 0.5},
-        {0.5, 0.5, 0.5},
-        {0.5, 0.5, 0.5}
-    };
-    float bias = 0;
+double hiddenFunctionArray(double* input, double* weight, double bias, int size, bool display = false) {
+    double sum = 0;
+    for(int i = 0; i < size; i++) {
+        sum += hiddenFunction(input[i], weight[i%(size-1)]);
+        if(display) {
+            cout << "size: " << size;
+            cout << " input index: " << i;
+            cout << " weight index: " <<  i%(size-1) << endl;
+            cout << "input = " << input[i] << " weight = " << weight[i%(size-1)] << " sum = " << sum << endl << endl;
+        }
+    }
+    sum += bias;
+    return sum;
+}
 
-    float hidden[3];
-    hidden[0] = input[0][0] * weights[0][0] + input[0][1] * weights[0][1] + input[0][2] * weights[0][2] + bias;
-    hidden[1] = input[1][0] * weights[1][0] + input[1][1] * weights[1][1] + input[1][2] * weights[1][2] + bias;
-    hidden[2] = input[2][0] * weights[2][0] + input[2][1] * weights[2][1] + input[2][2] * weights[2][2] + bias;
+double sigmoid(double x) {
+    return 1 / (1 + exp(-x));
+}
 
-    // * output
-    float output[3];
-    output[0] = 1 / (1 + exp(-hidden[0]));
-    output[1] = 1 / (1 + exp(-hidden[1]));
-    output[2] = 1 / (1 + exp(-hidden[2]));
+int main() {
+    // * x1 = 15, x2 = 30
+    // * formula x^2
+    double input[] = {(15*15), (30*30), (30*30)};
 
-    cout << "Output 1 : " << output[0] << endl;
-    cout << "Output 2 : " << output[1] << endl;
-    cout << "Output 3 : " << output[2] << endl;
+    // * weight
+    // * Object you need to find
+    double weight[] = {27, 50};
+
+    // * object or number you need
+    double b = -50000;
+
+    // * auto calculate the size of the array
+    int size = sizeof(input) / sizeof(double); // Calculate the size of the array
+    double a = sigmoid(hiddenFunctionArray(input, weight, b, size));
+
+    if(a > 0) {
+        cout << "1" << endl;
+    } else {
+        cout << "0" << endl;
+    }
+
+    printf("a = %f\n", a);
+
+    return 0;
 }
