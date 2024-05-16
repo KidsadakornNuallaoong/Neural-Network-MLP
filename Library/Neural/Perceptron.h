@@ -67,7 +67,7 @@ class Perceptron
 
         // * functions
         void feedForward(bool display = false);
-        void backPropagation();
+        void backPropagation(bool display = false);
         void train(bool display = false);
 
         // * monitor

@@ -257,13 +257,13 @@ void Perceptron<T>::feedForward(bool display)
 }
 
 template <typename T>
-void Perceptron<T>::backPropagation()
+void Perceptron<T>::backPropagation(bool display)
 {
     error = target - output;
     for(int i = 0; i < weights.size(); i++){
-        weights[i] += learningRate * error * inputs[i];
+        this->weights[i] += learningRate * error * inputs[i];
     }
-    bias += learningRate * error * biasWeight;
+    this->bias += learningRate * error * biasWeight;
 }
 
 template <typename T>
@@ -271,14 +271,13 @@ void Perceptron<T>::train(bool display)
 {
     do
     {
-        feedForward(true);
+        count = count + 1;
+        feedForward();
         backPropagation();
         if(display){
-            (target == output) ? cout << "Correct" << endl : cout << "Wrong" << endl;
-            cout << "Target: " << target << " Output: " << output << endl;
-            cout << "Count: " << count << endl;
+            // * use this to display the training process
+            Perceptron<T>::display();
         }
-        count = count + 1;
     } while (target != output);
 }
 
@@ -299,7 +298,7 @@ void Perceptron<T>::display()
         cout << this->weights[i] << " ";
     }
     cout << endl;
-    cout << "Training: " << count << " times\n";
+    cout << "Epoch: " << count << " times\n";
     cout << "Bias: " << this->bias << endl;
     cout << "Learning Rate: " << this->learningRate << " ";
     cout << "Error: " << this->error << endl;
