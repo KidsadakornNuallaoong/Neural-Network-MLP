@@ -67,9 +67,8 @@ class Perceptron
 
         // * functions
         void setActivationFunction(string activationFunction);
-        void feedForward(bool display = false);
-        void backPropagation(bool display = false);
-        void train(bool display = false);
+        T feedForward();
+        void train(bool verbose = false);
 
         // * monitor
         void display();

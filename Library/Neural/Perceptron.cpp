@@ -266,55 +266,46 @@ void Perceptron<T>::setActivationFunction(string activationFunction)
 }
 
 template <typename T>
-void Perceptron<T>::feedForward(bool display)
+T Perceptron<T>::feedForward()
 {
-    T sum = 0;
-    for (int i = 0; i < this->inputs.size(); i++)
+    for(int i: this->inputs)
     {
-        sum += this->inputs[i] * this->weights[i];
-        if(display){
-            printf("Root [%d] = %f ", i, this->inputs[i] * this->weights[i]);
-            printf("Sum = %f\n\n", sum);
-        }
+        this->output += this->inputs[i] * this->weights[i];
     }
-    sum += this->bias * this->biasWeight;
-    if(display){
-        cout << "Bias: " << this->bias << " Bias Weight: " << this->biasWeight << endl;
-        cout << "Sum: " << sum << endl;
-    }
-    this->output = activation(sum);
-    if(display){
-        cout << "Output: " << this->output << endl;
-    }
+    this->output += this->bias * this->biasWeight;
+    // cout << "Output: " << this->output << " ";
+    this->output = this->activation(this->output);
+    // cout << "Activation: " << this->output << endl << endl;
+    return this->output;
 }
 
 template <typename T>
-void Perceptron<T>::backPropagation(bool display)
+void Perceptron<T>::train(bool verbose)
 {
-    error = target - output;
-    for(int i = 0; i < weights.size(); i++){
-        this->weights[i] += learningRate * error * inputs[i];
-    }
-    this->bias += learningRate * error * biasWeight;
-}
-
-template <typename T>
-void Perceptron<T>::train(bool display)
-{   
-    string ans;
-    do
+    // * set time start
+    float start = clock();
+    // * setprecision(2) for float
+    while (abs(this->target - this->output) > 0.2f)
     {
-        count = count + 1;
-        feedForward();
-        backPropagation();
-        if(display){
-            // * use this to display the training process
-            Perceptron<T>::display();
+        this->feedForward();
+        this->error = (this->target - this->output);
+        for(int i = 0; i < this->inputs.size(); i++)
+        {
+            // * w = w + Δw
+            // * Δw = η * error * input
+            this->weights[i] += this->error * this->learningRate * this->inputs[i];
         }
-        cout << "Target: " << target << " Output: " << output << endl;
-        cout << "it is correct? (Y/N): ";
-        cin >> ans;
-    } while (ans != "Y" && ans != "y");
+        this->biasWeight += this->error * this->learningRate * this->bias;
+        count++;
+    }
+    // * set time end
+    float end = clock();
+
+    if (verbose)
+    {
+        cout << "Time: " << (end - start) / CLOCKS_PER_SEC << "s" << endl << endl;
+        cout << ">> Training End <<" << endl;
+    }
 }
 
 template <typename T>
@@ -336,8 +327,9 @@ void Perceptron<T>::display()
     cout << endl;
     cout << "Epoch: " << count << " times\n";
     cout << "Bias: " << this->bias << endl;
+    cout << "Bias Weight: " << this->biasWeight << endl;
     cout << "Learning Rate: " << this->learningRate << " ";
-    cout << "Error: " << this->error << endl;
+    cout << "Error Rate: " << (this->target - this->output) << endl;
     cout << "Target: " << this->target << " Output: " << this->output << endl << endl;
 }
 
