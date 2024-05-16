@@ -1,7 +1,10 @@
 #include "perceptron.h"
 #include <cmath>
+#include <iomanip>
 
 using namespace std;
+using std::fixed;
+using std::vector;
 
 template <typename T>
 T Perceptron<T>::stepFunction(T x)
@@ -91,11 +94,13 @@ template <typename T>
 inline Perceptron<T>::Perceptron()
 {
     cout << "Perceptron created" << endl;
+    // cout << std::fixed << std::setprecision(5);
 }
 
 template <typename T>
 Perceptron<T>::Perceptron(vector<T> inputs, vector<T> weights, T bias, T biasWeight, T learningRate, T target, T error, T output)
 {
+    // cout << std::fixed << std::setprecision(5);
     this->inputs = inputs;
     this->weights = weights;
     this->bias = bias;
@@ -203,6 +208,12 @@ T Perceptron<T>::getError()
 }
 
 template <typename T>
+T Perceptron<T>::getAccuracy()
+{
+    return T(accuracy);
+}
+
+template <typename T>
 T Perceptron<T>::activation(T x)
 {
     string ActF = this->activationFunction;
@@ -274,45 +285,63 @@ void Perceptron<T>::setActivationFunction(string activationFunction)
 template <typename T>
 T Perceptron<T>::feedForward()
 {
-    for(int i: this->inputs)
+    this->output = 0;
+    for (int i = 0; i < this->inputs.size(); i++)
     {
         this->output += this->inputs[i] * this->weights[i];
     }
     this->output += this->bias * this->biasWeight;
-    // cout << "Output: " << this->output << " ";
-    this->output = this->activation(this->output);
-    // cout << "Activation: " << this->output << endl << endl;
+    this->output = activation(this->output);
+    this->error = (this->target - this->output);
     return this->output;
 }
 
 template <typename T>
 void Perceptron<T>::train(bool verbose)
 {
-    // * set time start
-    float start = clock();
-    // * setprecision(2) for float
-    do
-    {
-        this->feedForward();
+    do {
         this->error = (this->target - this->output);
-        for(int i = 0; i < this->inputs.size(); i++)
+        T alpha = this->learningRate * this->error;
+        for (int i = 0; i < this->inputs.size(); i++)
         {
             // * w = w + Δw
             // * Δw = η * error * input
-            this->weights[i] += this->error * this->learningRate * this->inputs[i];
+            this->weights[i] = this->weights[i] +  alpha * this->inputs[i];
         }
-        this->biasWeight += this->error * this->learningRate * this->bias;
+        this->biasWeight = this->biasWeight + alpha * this->bias;
         count++;
-    } while (this->error >= this->accuracy || this->error <= (this->accuracy * -1));
-    // * set time end
-    float end = clock();
-
-    if (verbose)
-    {
-        cout << "Time: " << (end - start) / CLOCKS_PER_SEC << "s" << endl;
-        cout << ">> Training End <<" << endl << endl;
-    }
+        this->feedForward();
+    } while (this->error >= (this->accuracy * 1) || this->error <= (this->accuracy * -1));
 }
+
+// template <typename T>
+// void Perceptron<T>::train(bool verbose)
+// {
+//     // * set time start
+//     float start = clock();
+//     // * setprecision(2) for float
+//     do
+//     {
+//         this->feedForward();
+//         this->error = (this->target - this->output);
+//         for(int i = 0; i < this->inputs.size(); i++)
+//         {
+//             // * w = w + Δw
+//             // * Δw = η * error * input
+//             this->weights[i] += this->error * this->learningRate * this->inputs[i];
+//         }
+//         this->biasWeight += this->error * this->learningRate * this->bias;
+//         count++;
+//     } while (this->error >= (this->accuracy * 1) || this->error <= (this->accuracy * -1));
+//     // * set time end
+//     float end = clock();
+
+//     if (verbose)
+//     {
+//         cout << "Time: " << (end - start) / CLOCKS_PER_SEC << "s" << endl;
+//         cout << ">> Training End <<" << endl << endl;
+//     }
+// }
 
 template <typename T>
 void Perceptron<T>::display()
@@ -331,7 +360,7 @@ void Perceptron<T>::display()
         cout << this->weights[i] << " ";
     }
     cout << endl;
-    cout << "Epoch: " << count << " times\n";
+    cout << "Epoch: " << this->count << endl;
     cout << "Bias: " << this->bias << " ";
     cout << "Bias Weight: " << this->biasWeight << endl;
     cout << "Learning Rate: " << this->learningRate << " ";
@@ -344,4 +373,3 @@ void Perceptron<T>::display()
 // Explicitly instantiate the template for the types you need
 template class Perceptron<double>;
 template class Perceptron<float>;
-template class Perceptron<int>;

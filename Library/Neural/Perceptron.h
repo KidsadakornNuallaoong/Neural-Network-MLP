@@ -72,6 +72,7 @@ class Perceptron
         T getTarget();
         T getLearningRate();
         T getError();
+        T getAccuracy();
 
         // * functions
         void setActivationFunction(string activationFunction);
