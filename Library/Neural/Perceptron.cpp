@@ -155,6 +155,12 @@ void Perceptron<T>::setError(T error)
 }
 
 template <typename T>
+void Perceptron<T>::setAccuracy(T accuracy)
+{
+    this->accuracy = accuracy;
+}
+
+template <typename T>
 vector<T> Perceptron<T>::getInputs()
 {
     return vector<T>(inputs);
@@ -285,7 +291,7 @@ void Perceptron<T>::train(bool verbose)
     // * set time start
     float start = clock();
     // * setprecision(2) for float
-    while (abs(this->target - this->output) > 0.2f)
+    do
     {
         this->feedForward();
         this->error = (this->target - this->output);
@@ -297,14 +303,14 @@ void Perceptron<T>::train(bool verbose)
         }
         this->biasWeight += this->error * this->learningRate * this->bias;
         count++;
-    }
+    } while (this->error >= this->accuracy || this->error <= (this->accuracy * -1));
     // * set time end
     float end = clock();
 
     if (verbose)
     {
-        cout << "Time: " << (end - start) / CLOCKS_PER_SEC << "s" << endl << endl;
-        cout << ">> Training End <<" << endl;
+        cout << "Time: " << (end - start) / CLOCKS_PER_SEC << "s" << endl;
+        cout << ">> Training End <<" << endl << endl;
     }
 }
 
@@ -326,13 +332,16 @@ void Perceptron<T>::display()
     }
     cout << endl;
     cout << "Epoch: " << count << " times\n";
-    cout << "Bias: " << this->bias << endl;
+    cout << "Bias: " << this->bias << " ";
     cout << "Bias Weight: " << this->biasWeight << endl;
     cout << "Learning Rate: " << this->learningRate << " ";
     cout << "Error Rate: " << (this->target - this->output) << endl;
-    cout << "Target: " << this->target << " Output: " << this->output << endl << endl;
+    cout << "Activation Function: " << this->activationFunction << " ";
+    cout << "Accuracy: " << this->accuracy << endl;
+    cout << "Target: " << this->target << " Model Answer: " << this->output << endl << endl;
 }
 
 // Explicitly instantiate the template for the types you need
 template class Perceptron<double>;
 template class Perceptron<float>;
+template class Perceptron<int>;

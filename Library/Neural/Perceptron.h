@@ -18,6 +18,7 @@ class Perceptron
         T output = 0;
         T target;
         T learningRate;
+        T accuracy = 0.001;
         T error;
         string activationFunction = "step";
 
@@ -55,6 +56,7 @@ class Perceptron
         void setLearningRate(T learningRate);
         void setTarget(T target);
         void setError(T error);
+        void setAccuracy(T accuracy);
 
         // * get
         vector<T> getInputs();

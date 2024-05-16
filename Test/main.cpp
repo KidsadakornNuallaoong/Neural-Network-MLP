@@ -13,6 +13,7 @@ int main() {
     p.setTarget(72.0);
     p.display();
     p.setActivationFunction("linear");
+    p.setAccuracy(0.001);
     
     p.train(true);
     p.display();
