@@ -1,3 +1,9 @@
+// ****************************************************
+// * Code by Kidsadakorn Nuallaoong
+// * Neural Network - Perceptron
+// * Artificial Neuron Network - Single Layer
+// ****************************************************
+
 #if !defined(PERCEPTRON_H)
 #define PERCEPTRON_H
 
