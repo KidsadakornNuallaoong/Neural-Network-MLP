@@ -197,40 +197,72 @@ T Perceptron<T>::getError()
 }
 
 template <typename T>
-T Perceptron<T>::activation(T x, ActivationFunction f)
+T Perceptron<T>::activation(T x)
 {
-    switch(f){
-        case STEP:
-            return stepFunction(x);
-        case SIGN:
-            return signFunction(x);
-        case SIGMOID:
-            return sigmoidFunction(x);
-        case TANH:
-            return tanhFunction(x);
-        case RELU:
-            return reluFunction(x);
-        case LEAKY_RELU:
-            return leakyReluFunction(x);
-        case ELU:
-            return eluFunction(x);
-        case SOFTPLUS:
-            return softplusFunction(x);
-        case SOFTSIGN:
-            return softsignFunction(x);
-        case GAUSSIAN:
-            return gaussianFunction(x);
-        case SINE:
-            return sineFunction(x);
-        case COSINE:
-            return cosineFunction(x);
-        case ARCTAN:
-            return arctanFunction(x);
-        case LINEAR:
-            return linearFunction(x);
-        default:
-            return linearFunction(x);
+    string ActF = this->activationFunction;
+    for(char &c : ActF) c = tolower(c);
+    if (ActF == "step")
+    {
+        return stepFunction(x);
     }
+    else if (ActF == "sign")
+    {
+        return signFunction(x);
+    }
+    else if (ActF == "sigmoid")
+    {
+        return sigmoidFunction(x);
+    }
+    else if (ActF == "tanh")
+    {
+        return tanhFunction(x);
+    }
+    else if (ActF == "relu")
+    {
+        return reluFunction(x);
+    }
+    else if (ActF == "leakyRelu")
+    {
+        return leakyReluFunction(x);
+    }
+    else if (ActF == "elu")
+    {
+        return eluFunction(x);
+    }
+    else if (ActF == "softplus")
+    {
+        return softplusFunction(x);
+    }
+    else if (ActF == "softsign")
+    {
+        return softsignFunction(x);
+    }
+    else if (ActF == "gaussian")
+    {
+        return gaussianFunction(x);
+    }
+    else if (ActF == "sine")
+    {
+        return sineFunction(x);
+    }
+    else if (ActF == "cosine")
+    {
+        return cosineFunction(x);
+    }
+    else if (ActF == "arctan")
+    {
+        return arctanFunction(x);
+    }
+    else
+    {
+        return linearFunction(x);
+    }
+}
+
+template <typename T>
+void Perceptron<T>::setActivationFunction(string activationFunction)
+{
+    this->activationFunction = activationFunction;
 }
 
 template <typename T>
@@ -268,7 +300,8 @@ void Perceptron<T>::backPropagation(bool display)
 
 template <typename T>
 void Perceptron<T>::train(bool display)
-{
+{   
+    string ans;
     do
     {
         count = count + 1;
@@ -278,7 +311,10 @@ void Perceptron<T>::train(bool display)
             // * use this to display the training process
             Perceptron<T>::display();
         }
-    } while (target != output);
+        cout << "Target: " << target << " Output: " << output << endl;
+        cout << "it is correct? (Y/N): ";
+        cin >> ans;
+    } while (ans != "Y" && ans != "y");
 }
 
 template <typename T>

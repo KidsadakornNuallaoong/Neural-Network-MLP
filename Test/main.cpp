@@ -6,12 +6,13 @@
 using namespace std;
 
 int main() {
-    Perceptron<float> p({1, 1}, {-0.5, 0.5});
-    p.setBias(1);
+    Perceptron<float> p({1, 1}, {-1, 0});
+    p.setBias(0.5);
     p.setLearningRate(0.5);
-    p.setTarget(0);
+    p.setTarget(1);
     p.feedForward();
     p.display();
+    p.setActivationFunction("step");
     p.train();
     p.display();
 

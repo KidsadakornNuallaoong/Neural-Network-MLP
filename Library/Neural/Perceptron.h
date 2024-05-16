@@ -5,7 +5,6 @@
 #include <iostream>
 
 using namespace std;
-enum ActivationFunction { STEP, SIGN, SIGMOID, TANH, RELU, LEAKY_RELU, ELU, SOFTPLUS, SOFTSIGN, GAUSSIAN, SINE, COSINE, ARCTAN, LINEAR };
 
 template <typename T>
 
@@ -20,6 +19,7 @@ class Perceptron
         T target;
         T learningRate;
         T error;
+        string activationFunction = "step";
 
         int count = 0;
 
@@ -41,7 +41,7 @@ class Perceptron
 
         T linearFunction(T x);
 
-        T activation(T x, ActivationFunction f = STEP);
+        T activation(T x);
     public:
         Perceptron();
         Perceptron(vector<T> inputs, vector<T> weights = {0}, T bias = 1, T biasWeight = 1, T learningRate = 0.1, T target = 0, T error = 0, T output = 0);
@@ -66,6 +66,7 @@ class Perceptron
         T getError();
 
         // * functions
+        void setActivationFunction(string activationFunction);
         void feedForward(bool display = false);
         void backPropagation(bool display = false);
         void train(bool display = false);
