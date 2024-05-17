@@ -358,7 +358,7 @@ void Perceptron<T>::display()
         cout << this->weights[i] << " ";
     }
     cout << endl;
-    cout << "\033[0;33m" << "Ephocs: " << "\033[0m" << this->count << endl;
+    cout << "\033[0;33m" << "Epoch: " << "\033[0m" << this->count << " Time" << endl;
     cout << "\033[1;33m" << "Bias: " << "\033[0m" << this->bias << " ";
     cout << "\033[1;33m" << "Bias Weight: " << "\033[0m" << this->biasWeight << endl;
     cout << "\033[1;33m" << "Learning Rate: " << "\033[0m" << this->learningRate << " ";
