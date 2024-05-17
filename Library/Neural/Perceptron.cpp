@@ -361,7 +361,7 @@ void Perceptron<T>::display()
     cout << "\033[0;33m" << "Ephocs: " << "\033[0m" << this->count << endl;
     cout << "\033[1;33m" << "Bias: " << "\033[0m" << this->bias << " ";
     cout << "\033[1;33m" << "Bias Weight: " << "\033[0m" << this->biasWeight << endl;
-    cout << "\033[1;32m" << "Learning Rate: " << "\033[0m" << this->learningRate << " ";
+    cout << "\033[1;33m" << "Learning Rate: " << "\033[0m" << this->learningRate << " ";
     cout << "\033[1;31m" << "Error Rate: " << "\033[0m" << (this->target - this->output) << endl;
     cout << "\033[0;35m" << "Activation Function: " << "\033[0m" << this->activationFunction << " ";
     cout << "\033[0;35m" << "Accuracy: " << "\033[0m" << this->accuracy << endl;
@@ -374,6 +374,7 @@ void Perceptron<T>::display()
     {
         cout << "\033[1;32m" << "Model Answer: " << "\033[0m" << this->output << endl;
     }
+    cout << "\033[1;32m" << "=======>> End Display <<=======" << "\033[0m" << endl;
     cout << endl;
 }
 

@@ -7,6 +7,7 @@ using namespace std;
 
 int main() {
     // * Model train
+    cout << "\033[1;31m" << "=======>> Model train <<=======" << "\033[0m" << endl;
     Perceptron<double> p({22, 50}, {0.1, 0.1});
     p.setBias(1);
     p.setBiasWeight(0.1);
@@ -21,6 +22,7 @@ int main() {
     p.display();
 
     // * Model test
+    cout << "\033[1;31m" << "=======>> Model test <<=======" << "\033[0m" << endl;
     Perceptron<double> p2({22, 50}, p.getWeights(), p.getBias(), p.getBiasWeight(), p.getLearningRate(), p.getAccuracy(), p.getTarget());
     p2.setActivationFunction("Linear");
     p2.feedForward();
