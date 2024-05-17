@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <iostream>
+#include <cmath>
 
 using namespace std;
 
@@ -24,7 +25,7 @@ class Perceptron
         T output = 0;
         T target;
         T learningRate;
-        T accuracy = 0.001;
+        T accuracy;
         T error;
         string activationFunction = "step";
 
@@ -51,7 +52,7 @@ class Perceptron
         T activation(T x);
     public:
         Perceptron();
-        Perceptron(vector<T> inputs, vector<T> weights = {0}, T bias = 1, T biasWeight = 1, T learningRate = 0.1, T target = 0, T error = 0, T output = 0);
+        Perceptron(vector<T> inputs, vector<T> weights = {0}, T bias = 1, T biasWeight = 1, T learningRate = 0.1, T accuracy = 0.0001, T target = 0, T error = 0, T output = 0);
         ~Perceptron();
 
         // * set up
@@ -68,6 +69,7 @@ class Perceptron
         vector<T> getInputs();
         vector<T> getWeights();
         T getBias();
+        T getBiasWeight();
         T getOutput();
         T getTarget();
         T getLearningRate();
@@ -77,6 +79,7 @@ class Perceptron
         // * functions
         void setActivationFunction(string activationFunction);
         T feedForward();
+        T backPropagation();
         void train(bool verbose = false);
 
         // * monitor
