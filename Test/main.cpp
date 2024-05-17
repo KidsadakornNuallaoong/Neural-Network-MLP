@@ -14,7 +14,7 @@ int main() {
     p.setLearningRate(0.0001);
     p.setTarget(75.995);
     p.setActivationFunction("Linear");
-    p.setAccuracy(0.001);
+    p.setAccuracy(1e-4);
     p.feedForward();
     p.display();
 
