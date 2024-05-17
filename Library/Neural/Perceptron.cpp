@@ -344,28 +344,37 @@ void Perceptron<T>::train(bool verbose)
 template <typename T>
 void Perceptron<T>::display()
 {
-    cout << ">> Perceptron Display <<" << endl;
-    cout << "Inputs: ";
+    cout << "\033[1;32m" << "===>> Perceptron Display <<===" << "\033[0m" << endl;
+    cout << "\033[1;33m" << "Inputs: " << "\033[0m";
     for (int i = 0; i < this->inputs.size(); i++)
     {
         cout << this->inputs[i] << " ";
     }
     cout << endl;
 
-    cout << "Weights: ";
+    cout << "\033[1;33m" << "Weights: " << "\033[0m";
     for (int i = 0; i < this->weights.size(); i++)
     {
         cout << this->weights[i] << " ";
     }
     cout << endl;
-    cout << "Epoch: " << this->count << endl;
-    cout << "Bias: " << this->bias << " ";
-    cout << "Bias Weight: " << this->biasWeight << endl;
-    cout << "Learning Rate: " << this->learningRate << " ";
-    cout << "Error Rate: " << (this->target - this->output) << endl;
-    cout << "Activation Function: " << this->activationFunction << " ";
-    cout << "Accuracy: " << this->accuracy << endl;
-    cout << "Target: " << this->target << " Model Answer: " << this->output << endl << endl;
+    cout << "\033[0;33m" << "Ephocs: " << "\033[0m" << this->count << endl;
+    cout << "\033[1;33m" << "Bias: " << "\033[0m" << this->bias << " ";
+    cout << "\033[1;33m" << "Bias Weight: " << "\033[0m" << this->biasWeight << endl;
+    cout << "\033[1;32m" << "Learning Rate: " << "\033[0m" << this->learningRate << " ";
+    cout << "\033[1;31m" << "Error Rate: " << "\033[0m" << (this->target - this->output) << endl;
+    cout << "\033[0;35m" << "Activation Function: " << "\033[0m" << this->activationFunction << " ";
+    cout << "\033[0;35m" << "Accuracy: " << "\033[0m" << this->accuracy << endl;
+    cout << "\033[1;32m" << "Target: " << "\033[0m" << this->target << " ";
+    if(this->error >= (this->accuracy * 1) || this->error <= (this->accuracy * -1))
+    {
+        cout << "\033[1;31m" << "Model Answer: " << "\033[0m" << this->output << endl;
+    }
+    else
+    {
+        cout << "\033[1;32m" << "Model Answer: " << "\033[0m" << this->output << endl;
+    }
+    cout << endl;
 }
 
 // Explicitly instantiate the template for the types you need

@@ -25,5 +25,6 @@ int main() {
     p2.setActivationFunction("Linear");
     p2.feedForward();
     p2.display();
+
     return 0;
 }
