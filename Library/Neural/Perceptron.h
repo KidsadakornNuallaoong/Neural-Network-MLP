@@ -52,8 +52,10 @@ class Perceptron
         T activation(T x);
     public:
         Perceptron();
-        Perceptron(vector<T> inputs, vector<T> weights = {0}, T bias = 1, T biasWeight = 1, T learningRate = 0.1, T accuracy = 0.0001, T target = 0, T error = 0, T output = 0);
+        Perceptron(vector<T> inputs, vector<T> weights = {0}, T bias = 1, T biasWeight = 1, T learningRate = 0.1, T accuracy = 0.0001, T target = 0);
         ~Perceptron();
+
+        void setPerceptron(vector<T> inputs, vector<T> weights = {0}, T bias = 1, T biasWeight = 1, T learningRate = 0.1, T accuracy = 0.0001, T target = 0);
 
         // * set up
         void setInputs(vector<T> inputs);
@@ -76,11 +78,16 @@ class Perceptron
         T getError();
         T getAccuracy();
 
+        // * options
+        T getEpochs();
+        void copyPerceptron(Perceptron<T> p);
+
         // * functions
         void setActivationFunction(string activationFunction);
         T feedForward();
         T backPropagation();
         void train(bool verbose = false);
+        void train(int epochs, bool verbose = false);
 
         // * monitor
         void display();
