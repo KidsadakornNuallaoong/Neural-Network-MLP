@@ -18,12 +18,17 @@ perceptron คือ โครงข่ายประสาทเทียม �
 ```
 
 # perceptron learning
-## w = w + α(t - o)x
+```
+w = w + α(t - o)x
+```
 
 # Backpropagation
-## MSE = Mean Square Error
-### e = Δ∑∑(t[kd] - a[kd])^2
-
-## Negative gradiant
-### w' = w - η(∂e/∂w) // * for weight
-### b' = b - η(∂e/∂b) // * for bias
+```
+MSE = Mean Square Error
+e = Δ∑∑(t[kd] - a[kd])^2
+```
+# Negative gradiant
+```
+w' = w - η(∂e/∂w) // * for weight
+b' = b - η(∂e/∂b) // * for bias
+```
