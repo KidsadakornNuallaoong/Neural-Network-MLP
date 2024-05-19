@@ -64,43 +64,133 @@ void Neural<T>::setWeights(vector<vector<T>> weights, bool verbose)
 }
 
 template <typename T>
-void Neural<T>::setHiddenLayer()
+void Neural<T>::setBiasWeight(vector<vector<T>> biasWeights, bool verbose)
 {
-    int N = 0;
-    if(this->inputs.size() > this->weights.size()){
-        N = this->inputs.size();
-    } else {
-        N = this->weights.size();
-    }
-    // * set perceptrons
-    for (int i = 0; i < this->weights.size(); i++)
+    // * protection error
+    if (biasWeights.size() > this->inputs.size())
     {
-        vector<T> w;
-        for (int j = 0; j < N; j++)
+        cout << "\033[1;31m" << "Error: Bias Weights size is greater than inputs size" << "\033[0m" << endl;
+        return;
+    }
+    
+    // * set bias weights
+    this->biasWeight = biasWeights;
+    // * display bias weights
+    if(verbose){
+        cout << "Bias Weights Size: " << biasWeights.size() << endl;
+        for (int i = 0; i < biasWeights.size(); i++)
         {
-            w.push_back(this->weights[i][j%this->weights[i].size()]);
+            cout << "Bias Weights[" << i << "] Size :  " << biasWeights[i].size() << endl;
+            cout << "Bias Weights[" << i << "] :  ";
+            for (int j = 0; j < biasWeights[i].size(); j++)
+            {
+                cout << biasWeights[i][j] << " ";
+            }
+            cout << endl;
         }
-        Perceptron<T> p(this->inputs, w);
-        this->perceptrons.push_back(p);
     }
 }
 
 template <typename T>
-void Neural<T>::display()
+void Neural<T>::MultiLayerPerceptron(int layer)
 {
-    // * display : inputs i : ? | weights i : ? j : ?
-    // cout << "Inputs Size: " << this->inputs.size() << endl;
-    // for(int i = 0; i < this->inputs.size(); i++){
-    //     cout << "Inputs[" << i << "] : " << this->inputs[i] << endl;
-    // }
-
-    // * display : perceptrons
-    cout << "Hiddens Size: " << this->perceptrons.size() << endl;
-    for (int i = 0; i < this->perceptrons.size(); i++)
-    {
-        cout << "Hidden[" << i << "] :  " << endl;
-        this->perceptrons[i].display();
+    // * Layer
+    for(int i = 0; i < layer; i++){
+        // * set perceptrons
+        for (int j = 0; j < this->weights.size(); j++)
+        {
+            Perceptron<T> p(this->inputs, this->weights[j]);
+            this->perceptrons[i].push_back(p);
+            this->hiddenLayer.hiddenNeurons++;
+        }
+        this->hiddenLayer.hiddenCount++;
     }
+    for(int i = 0; i < this->perceptrons.size(); i++){
+        cout << "Perceptrons[" << i << "] Size: " << this->perceptrons[i].size() << endl;
+        for(int j = 0; j < this->perceptrons[i].size(); j++){
+            cout << "Perceptrons[" << i << "][" << j << "] : " << endl;
+            this->perceptrons[i][j].display();
+        }
+    }
+}
+
+// template <typename T>
+// void Neural<T>::setHiddenLayer()
+// {
+//     int N = 0;
+//     if(this->inputs.size() > this->weights.size()){
+//         N = this->inputs.size();
+//     } else {
+//         N = this->weights.size();
+//     }
+//     // * set perceptrons
+//     for (int i = 0; i < this->weights.size(); i++)
+//     {
+//         vector<T> w;
+//         for (int j = 0; j < N; j++)
+//         {
+//             w.push_back(this->weights[i][j%this->weights[i].size()]);
+//         }
+//         Perceptron<T> p(this->inputs, w);
+//         this->perceptrons.push_back(p);
+//         this->hiddenLayer.hiddenNeurons++;
+//     }
+//     this->hiddenLayer.hiddenCount++;
+// }
+
+template <typename T>
+void Neural<T>::display(string option)
+{
+    // * change option to uppercase
+    for(int i = 0; i < option.size(); i++){
+        option[i] = toupper(option[i]);
+    }
+    if(option == "NEURON"){
+        this->displayNeurons();
+    } else if(option == "PERCEPTRON"){
+        this->displayPerceptrons();
+    } else {
+        this->displayNeurons();
+    }
+}
+
+template <typename T>
+void Neural<T>::displayNeurons()
+{
+    cout << "Neural Network" << endl;
+    cout << "Inputs Size: " << this->inputs.size() << endl;
+    cout << "Inputs :  ";
+    for (int i = 0; i < this->inputs.size(); i++)
+    {
+        cout << this->inputs[i] << " ";
+    }
+    cout << endl;
+    cout << "Weights Size: " << this->weights.size() << endl;
+    for (int i = 0; i < this->weights.size(); i++)
+    {
+        cout << "Weights[" << i << "] Size [" << this->weights[i].size() << "] :  ";
+        for (int j = 0; j < this->weights[i].size(); j++)
+        {
+            cout << this->weights[i][j] << " ";
+        }
+        cout << endl;
+    }
+
+    cout << "Bias Weights Size: " << this->biasWeight.size() << endl;
+    for (int i = 0; i < this->biasWeight.size(); i++)
+    {
+        cout << "Bias Weights[" << i << "] Size [" << this->biasWeight[i].size() << "] :  ";
+        for (int j = 0; j < this->biasWeight[i].size(); j++)
+        {
+            cout << this->biasWeight[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
+
+template <typename T>
+void Neural<T>::displayPerceptrons()
+{
 }
 
 template class Neural<float>;

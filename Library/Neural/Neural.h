@@ -5,21 +5,23 @@
 #include "../Perceptron/Perceptron.h"
 
 using namespace std;
+
+typedef struct HiddenLayer {
+    int hiddenCount;
+    int hiddenNeurons;
+} HiddenLayer;
+
 template <typename T>
 
-class Neural {
+class Neural : public Perceptron<T>{
     private:
         vector<T> inputs;
         vector<vector<T>> weights;
-        vector<Perceptron<T>> perceptrons;
-        vector<T> biass;
-        vector<T> biasWeights;
-        vector<T> targets;
+        vector<vector<Perceptron<T>>> perceptrons = {{}};
+        vector<vector<T>> bias = {{0}};
+        vector<vector<T>> biasWeight = {{0}};
 
-        T bias = 1;
-        T biasWeight = 1;
-        T learningRate = 0.1;
-        T accuracy = 0.0001;
+        HiddenLayer hiddenLayer = {0, 0};
         string activationFunction = "step";
 
     public:
@@ -28,9 +30,13 @@ class Neural {
 
         void setInputs(vector<T> inputs, bool verbose = false);
         void setWeights(vector<vector<T>> weights, bool verbose = false);
+        void setBiasWeight(vector<vector<T>> biasWeights, bool verbose = false);
         void setHiddenLayer();
+        void MultiLayerPerceptron(int layer = 1);
 
-        void display();
+        void display(string option = "neuron");
+        void displayNeurons();
+        void displayPerceptrons();
 };
 
 

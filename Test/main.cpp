@@ -8,32 +8,32 @@ using namespace std;
 
 int main() {
     // // * Model train
-    cout << "\033[1;31m" << "=======>> Model train <<=======" << "\033[0m" << endl;
-    Perceptron<double> p({22, 50}, {0.1, 0.1});
-    p.setBias(1);
-    p.setBiasWeight(0.1);
-    p.setLearningRate(0.0001);
-    p.setTarget(75.995);
-    p.setActivationFunction("Linear");
-    p.setAccuracy(1e-5);
-    p.feedForward();
-    p.display();
+    // cout << "\033[1;31m" << "=======>> Model train <<=======" << "\033[0m" << endl;
+    // Perceptron<double> p({22, 50}, {0.1, 0.1});
+    // p.setBias(1);
+    // p.setBiasWeight(0.1);
+    // p.setLearningRate(0.0001);
+    // p.setTarget(75.995);
+    // p.setActivationFunction("Linear");
+    // p.setAccuracy(1e-5);
+    // p.feedForward();
+    // p.display();
 
-    p.train(true);
-    p.display();
+    // p.train(true);
+    // p.display();
 
-    // * Model test
-    cout << "\033[1;31m" << "=======>> Model test <<=======" << "\033[0m" << endl;
-    // Perceptron<double> p2({22, 50}, p.getWeights(), p.getBias(), p.getBiasWeight(), p.getLearningRate(), p.getAccuracy(), p.getTarget());
+    // // * Model test
+    // cout << "\033[1;31m" << "=======>> Model test <<=======" << "\033[0m" << endl;
+    // // Perceptron<double> p2({22, 50}, p.getWeights(), p.getBias(), p.getBiasWeight(), p.getLearningRate(), p.getAccuracy(), p.getTarget());
+    // // p2.setActivationFunction("Linear");
+    // // p2.feedForward();
+    // // p2.display();
+
+    // Perceptron<double> p2({22, 50});
+    // p2.copyPerceptron(p);
     // p2.setActivationFunction("Linear");
     // p2.feedForward();
     // p2.display();
-
-    Perceptron<double> p2({22, 50});
-    p2.copyPerceptron(p);
-    p2.setActivationFunction("Linear");
-    p2.feedForward();
-    p2.display();
 
     // * Neural Network
     cout << "\033[1;31m" << "=======>> Neural Network <<=======" << "\033[0m" << endl;
@@ -42,8 +42,15 @@ int main() {
     // * set inputs
     n.setInputs({22, 50, 50});
     n.setWeights({{0.1, 2}, {0.3}, {0.5, 0.1}});
-    n.setHiddenLayer();
-    n.display();
+    n.setBiasWeight({{0.1}, {0.2}, {0.1}});
+    n.MultiLayerPerceptron();
+    // n.setHiddenLayer();
+    n.display("perceptron");
+
+    // vector<vector<Perceptron<double>>> p;
+    // p.push_back({ptest_0, ptest_1});
+    // p[0][0].display();
+    // p[0][1].display();
 
     // Perceptron<float> ptest_0({0.35, 0.9}, {0.0991, 0.7976});
     // ptest_0.setBias(0);

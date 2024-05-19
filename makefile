@@ -13,12 +13,11 @@ NeuralNetwork_Path=./Library/Neural
 build:
 	@g++ $(Perceptron_Path)/Perceptron.cpp -o $(Perceptron_Path)/$(PerceptronName) -c
 	@echo "\033[1;32mBuild Perceptron compiled successfully!\033[0m"
+	@sleep $(delay)
 
 	@g++ $(NeuralNetwork_Path)/Neural.cpp -o $(NeuralNetwork_Path)/$(NeuralNetworkName) -c
 	@echo "\033[1;32mBuild Neural Network compiled successfully!\033[0m"
-
 	@sleep $(delay)
-	@clear
 
 demo: build
 	@g++ ./Test/main.cpp $(Perceptron_Path)/Perceptron.cpp $(NeuralNetwork_Path)/Neural.cpp -o $(output)
