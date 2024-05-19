@@ -94,6 +94,13 @@ template <typename T>
 inline Perceptron<T>::Perceptron()
 {
     // cout << std::fixed << std::setprecision(8);
+    this->inputs = {};
+    this->weights = {};
+    this->bias = 1;
+    this->biasWeight = 1;
+    this->learningRate = 0.1;
+    this->accuracy = 0.0001;
+    this->target = 0;
 }
 
 template <typename T>
@@ -115,8 +122,6 @@ inline Perceptron<T>::~Perceptron()
     // * clear
     this->inputs.clear();
     this->weights.clear();
-    this->inputs.shrink_to_fit();
-    this->weights.shrink_to_fit();
 }
 
 template <typename T>
@@ -341,7 +346,7 @@ T Perceptron<T>::backPropagation()
     {
         // * w = w + Δw
         // * Δw = η * error * input
-        this->weights[i] = this->weights[i] +  alpha * this->inputs[i];
+        this->weights[i%weights.size()] = this->weights[i] +  alpha * this->inputs[i];
     }
     this->biasWeight = this->biasWeight + alpha;
     count++;
@@ -384,7 +389,6 @@ void Perceptron<T>::train(int epochs, bool verbose)
     }
     // * set time start
     float start = clock();
-    // * setprecision(2) for float
     for (int i = 0; i < epochs; i++)
     {
         this->backPropagation();
@@ -433,7 +437,6 @@ void Perceptron<T>::display()
         cout << "\033[1;32m" << "Model Answer: " << "\033[0m" << this->output << endl;
     }
     cout << "\033[1;32m" << "=======>> End Display <<=======" << "\033[0m" << endl;
-    cout << endl;
 }
 
 // Explicitly instantiate the template for the types you need

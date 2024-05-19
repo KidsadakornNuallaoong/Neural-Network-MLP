@@ -1,7 +1,8 @@
 #include <iostream>
 #include <cmath>
 
-#include "../Library/Neural/Perceptron.h"
+#include "../Library/Perceptron/Perceptron.h"
+#include "../Library/Neural/Neural.h"
 
 using namespace std;
 
@@ -33,6 +34,16 @@ int main() {
     p2.setActivationFunction("Linear");
     p2.feedForward();
     p2.display();
+
+    // * Neural Network
+    cout << "\033[1;31m" << "=======>> Neural Network <<=======" << "\033[0m" << endl;
+    Neural<double> n;
+
+    // * set inputs
+    n.setInputs({22, 50, 50});
+    n.setWeights({{0.1, 2}, {0.3}, {0.5, 0.1}});
+    n.setHiddenLayer();
+    n.display();
 
     // Perceptron<float> ptest_0({0.35, 0.9}, {0.0991, 0.7976});
     // ptest_0.setBias(0);
