@@ -34,6 +34,27 @@ int main() {
     // p2.setActivationFunction("Linear");
     // p2.feedForward();
     // p2.display();
+    cout << "\033[1;31m" << "=======>> Perceptron Test <<=======" << "\033[0m" << endl;
+    Perceptron<double> ptest_0({1}, {0.1});
+    ptest_0.setBias(1);
+    ptest_0.setBiasWeight(0.1);
+    ptest_0.setLearningRate(0.00001);
+    ptest_0.setTarget(2);
+    ptest_0.setActivationFunction("Linear");
+    ptest_0.setAccuracy(10e-8);
+    ptest_0.feedForward();
+    ptest_0.display();
+
+    ptest_0.train();
+    ptest_0.display();
+
+    Perceptron<double> ptest_1({4});
+    ptest_1.copyPerceptron(ptest_0);
+    ptest_1.setActivationFunction("Linear");
+    ptest_1.feedForward();
+    ptest_1.display();
+
+    cout << "\033[1;31m" << "=======>> END <<=======" << "\033[0m" << endl;
 
     // * Neural Network
     cout << "\033[1;31m" << "=======>> Neural Network <<=======" << "\033[0m" << endl;
