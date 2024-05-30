@@ -26,9 +26,12 @@ class Perceptron
         T target = 0;
         T error = 0; // target - output
 
+        T accuracy = 0.1;
+
         string activationType = "Linear";
     public:
         Perceptron();
+        Perceptron(Perceptron<T> *p) {copyEnv(p);};
         ~Perceptron();
 
         void setInputs(vector<T> inputs);
@@ -36,6 +39,8 @@ class Perceptron
         void setBias(T biasW);
         void setLearningRate(T learningRate);
         void setTarget(T target);
+        void setError(T error);
+        void setAccuracy(T accuracy);
 
         vector<T> getInputs();
         vector<T> getWeights();
@@ -55,7 +60,7 @@ class Perceptron
         T feedForward();
         T backpropagate();
         void train(bool verbose = false);
-        void train(int epoch, bool verbose = false);
+        void train(int epoch, T accuracy = 1e-4, bool verbose = false);
 
         // * monitor
         void display();

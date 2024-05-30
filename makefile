@@ -36,7 +36,7 @@ clean:
 	@del /f $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o $(Library_Path)\$(NeuralNetwork_Path)\$(NeuralNetworkName).o *.o *.out *.exe $(output) > nul  2>&1
 else
 
-Flags=nul
+Flags=
 
 build:
 	@g++ ./$(Library_Path)/$(Perceptron_Path)/Perceptron.cpp -o ./$(Library_Path)/$(Perceptron_Path)/$(PerceptronName).o -c

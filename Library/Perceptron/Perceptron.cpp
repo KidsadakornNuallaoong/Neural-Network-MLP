@@ -7,10 +7,25 @@ using namespace std;
 using std::vector;
 
 template <typename T>
-Perceptron<T>::Perceptron(){}
+Perceptron<T>::Perceptron(){
+    this->inputs = vector<T>();
+    this->weights = vector<T>();
+    this->biasW = 0;
+    this->output = 0;
+    this->learningRate = 0.1;
+    this->target = 0;
+    this->error = 0;
+    this->accuracy = 0.1;
+    this->activationType = "Linear";
+}
 
 template <typename T>
-Perceptron<T>::~Perceptron(){}
+Perceptron<T>::~Perceptron(){
+    this->inputs.clear();
+    this->weights.clear();
+    this->inputs.shrink_to_fit();
+    this->weights.shrink_to_fit();
+}
 
 template <typename T>
 void Perceptron<T>::setInputs(vector<T> inputs) {
@@ -33,6 +48,18 @@ void Perceptron<T>::setLearningRate(T learningRate) {
 template <typename T>
 void Perceptron<T>::setTarget(T target) {
     this->target = target;
+}
+
+template <typename T>
+void Perceptron<T>::setError(T error)
+{
+    this->error = error;
+}
+
+template <typename T>
+void Perceptron<T>::setAccuracy(T accuracy)
+{
+    this->accuracy = accuracy;
 }
 
 template <typename T>
@@ -77,6 +104,8 @@ void Perceptron<T>::copyEnv(Perceptron<T> *p) {
     this->biasW = p->getBias();
     this->learningRate = p->getLearningRate();
     this->target = p->getTarget();
+    this->accuracy = p->accuracy;
+    this->activationType = p->activationType;
 }
 
 template <typename T>
@@ -163,20 +192,20 @@ void Perceptron<T>::train(bool verbose)
         {
             display();
         }
-        if (Err() < 0.0000001 && Err() > -0.0000001)
+        if (Err() < this->accuracy && Err() > this->accuracy*-1)
         {
             break;
         }
     }
     auto end = chrono::high_resolution_clock::now();
-    double TrainTime = chrono::duration_cast<chrono::nanoseconds>(end - start).count();
     if(verbose){
-        cout << "Train Time: " << TrainTime << " ns" << endl;
+        std::chrono::duration<double> duration = end - start;
+        cout << "Train Time: " << duration.count() << "s" << endl;
     }
 }
 
 template <typename T>
-void Perceptron<T>::train(int epoch, bool verbose)
+void Perceptron<T>::train(int epoch, T accuracy, bool verbose)
 {
     auto start = chrono::high_resolution_clock::now();
     for (int i = 0; i < epoch; i++)
@@ -186,16 +215,16 @@ void Perceptron<T>::train(int epoch, bool verbose)
         {
             display();
         }
-        if (Err() < 0.0000001 && Err() > -0.0000001)
+        if (Err() < accuracy && Err() > accuracy*-1)
         {
             cout << "Error: " << Err() << endl;
             break;
         }
     }
     auto end = chrono::high_resolution_clock::now();
-    double TrainTime = chrono::duration_cast<chrono::nanoseconds>(end - start).count();
     if(verbose){
-        cout << "Train Time: " << TrainTime << " ns" << endl;
+        std::chrono::duration<double> duration = end - start;
+        cout << "Train Time: " << duration.count() << "s" << endl;
     }
 }
 
