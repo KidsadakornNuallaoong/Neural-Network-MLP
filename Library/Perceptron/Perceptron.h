@@ -19,74 +19,43 @@ class Perceptron
     private:
         vector<T> inputs;
         vector<T> weights;
-        T bias;
-        T biasWeight;
+        const T bias = 1;
+        T biasW = 0;
         T output = 0;
-        T target;
-        T learningRate;
-        T accuracy;
-        T error;
-        string activationFunction = "step";
+        T learningRate = 0.1;
+        T target = 0;
+        T error = 0; // target - output
 
-        int count = 0;
-
-        // * formula
-        T stepFunction(T x);
-        T signFunction(T x);
-        T sigmoidFunction(T x);
-        T tanhFunction(T x);
-        T reluFunction(T x);
-        T leakyReluFunction(T x);
-        T eluFunction(T x);
-        T softplusFunction(T x);
-        T softsignFunction(T x);
-        T gaussianFunction(T x);
-
-        T sineFunction(T x);
-        T cosineFunction(T x);  
-        T arctanFunction(T x);
-
-        T linearFunction(T x);
-
-        T activation(T x);
+        string activationType = "Linear";
     public:
         Perceptron();
-        Perceptron(vector<T> inputs, vector<T> weights = {0}, T bias = 1, T biasWeight = 1, T learningRate = 0.1, T accuracy = 0.0001, T target = 0);
         ~Perceptron();
 
-        void setPerceptron(vector<T> inputs, vector<T> weights = {0}, T bias = 1, T biasWeight = 1, T learningRate = 0.1, T accuracy = 0.0001, T target = 0);
-
-        // * set up
         void setInputs(vector<T> inputs);
         void setWeights(vector<T> weights);
-        void setBias(T bias);
-        void setBiasWeight(T biasWeight);
+        void setBias(T biasW);
         void setLearningRate(T learningRate);
         void setTarget(T target);
-        void setError(T error);
-        void setAccuracy(T accuracy);
 
-        // * get
         vector<T> getInputs();
         vector<T> getWeights();
         T getBias();
-        T getBiasWeight();
-        T getOutput();
-        T getTarget();
         T getLearningRate();
-        T getError();
-        T getAccuracy();
+        T getTarget();
+        T getOutput();
 
-        // * options
-        T getEpochs();
-        void copyPerceptron(Perceptron<T> p);
+        void copyEnv(Perceptron<T> *p);
 
-        // * functions
-        void setActivationFunction(string activationFunction);
+        T Err();
+        T MSE();
+        T MAE();
+        T activation(T x);
+        void setActivation(string type);
+
         T feedForward();
-        T backPropagation();
+        T backpropagate();
         void train(bool verbose = false);
-        void train(int epochs, bool verbose = false);
+        void train(int epoch, bool verbose = false);
 
         // * monitor
         void display();
