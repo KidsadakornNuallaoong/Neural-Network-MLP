@@ -129,7 +129,54 @@ T Perceptron<T>::MAE()
 template <typename T>
 T Perceptron<T>::activation(T x)
 {
-    return T(x);
+    for (int i = 0; i < activationType.length(); i++)
+    {
+        activationType[i] = tolower(activationType[i]);
+    }
+
+    if (activationType == "linear")
+    {
+        // * f(x) = x
+        return x;
+    }
+    else if (activationType == "sigmoid")
+    {
+        // * f(x) = 1 / (1 + e^(-x))
+        return 1 / (1 + exp(-x));
+    }
+    else if (activationType == "tanh")
+    {
+        // * f(x) = tanh(x)
+        return tanh(x);
+    }
+    else if (activationType == "relu")
+    {
+        // * f(x) = max(0,x)
+        (x>0)?x:x=0;
+        return x;
+    }
+    else if (activationType == "leakyrelu")
+    {
+        // * f(x) = max(0.01*x,x)
+        (x>0)?x:x=0.01*x;
+        return x;
+    }
+    else if (activationType == "softmax")
+    {
+        // * f(x) = e^x / ∑(e^x)
+        return exp(x) / exp(x);
+    }
+    else if(activationType == "step")
+    {
+        // * f(x) = 1 if x > 0 else 0
+        return (x>0)?1:0;
+    }
+    else
+    {
+        // ! warning if activation type not found
+        cout << "\033[1;31mActivation Type Not Found\033[0m" << endl;
+        return 0;
+    }
 }
 
 template <typename T>
@@ -159,7 +206,7 @@ T Perceptron<T>::feedForward()
 
     // * e = out - target
     this->error = this->output - this->target;
-    return activation(this->output);
+    return this->output = activation(this->output);
 }
 
 template <typename T>
@@ -177,7 +224,7 @@ T Perceptron<T>::backpropagate()
         this->weights[i] = this->weights[i] - this->learningRate * 2 * this->error * this->inputs[i];
     }
     this->biasW = this->biasW - this->learningRate * 2 * this->error;
-    this->output = feedForward();
+    feedForward();
     return this->error;
 }
 
@@ -192,7 +239,7 @@ void Perceptron<T>::train(bool verbose)
         {
             display();
         }
-        if (Err() < this->accuracy && Err() > this->accuracy*-1)
+        if (Err() < accuracy && Err() > accuracy*-1 && verbose)
         {
             break;
         }
@@ -215,7 +262,7 @@ void Perceptron<T>::train(int epoch, T accuracy, bool verbose)
         {
             display();
         }
-        if (Err() < accuracy && Err() > accuracy*-1)
+        if (Err() < accuracy && Err() > accuracy*-1 && verbose)
         {
             cout << "Error: " << Err() << endl;
             break;
