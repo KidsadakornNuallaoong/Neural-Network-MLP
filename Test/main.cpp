@@ -27,13 +27,24 @@ int main() {
     p1.display();
     cout << endl;
 
-    p1.setActivation("ReLU");
-    p1.feedForward();
-    p1.display();
-    cout << endl;
+// * plot input and loss of model
+    // plt::plot(p1.getInputs(), p1.getWeights(), "r-");
+    // plt::scatter_colored(dat_a, dat_b, w, 50);
+    // plt::plot(p1.getInputs(), p1.getWeights(), "r-");
+    // vector<float> loss;
+    // for (int i = 0; i < p1.getInputs().size(); i++) {
+    //     p1.setInputs({p1.getInputs()[i]});
+    //     p1.feedForward();
+    //     loss.push_back(p1.getOutput());
+    // }
+    // plt::scatter(p1.getInputs(), loss, 50);
+    // plt::xlabel("Input");
+    // plt::ylabel("Loss");
+    // plt::show();
 
-    p1.setActivation("LeakyReLU");
-    p1.feedForward();
-    p1.display();
-    cout << endl;
+    Perceptron<float> p2(p1);
+    p2.setInputs({1, 2});
+    p2.setWeights({0.1, 0.1});
+    p2.feedForward();
+    p2.display();
 }
