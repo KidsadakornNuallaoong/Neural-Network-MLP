@@ -1,98 +1,103 @@
 #include <iostream>
 #include <cmath>
+#include <vector>
+#include <thread>
+#include <mutex>
 
 #include "../Library/Perceptron/Perceptron.h"
 #include "../Library/Neural/Neural.h"
+// #include "matplotlibcpp.h"
 
 using namespace std;
+// namespace plt = matplotlibcpp;
 
 int main() {
-    // // * Model train
-    // cout << "\033[1;31m" << "=======>> Model train <<=======" << "\033[0m" << endl;
-    // Perceptron<double> p({22, 50}, {0.1, 0.1});
-    // p.setBias(1);
-    // p.setBiasWeight(0.1);
-    // p.setLearningRate(0.0001);
-    // p.setTarget(75.995);
-    // p.setActivationFunction("Linear");
-    // p.setAccuracy(1e-5);
-    // p.feedForward();
-    // p.display();
+    Perceptron<float> p1, p2, p3;
 
-    // p.train(true);
-    // p.display();
+    float target = 0.5;
 
-    // // * Model test
-    // cout << "\033[1;31m" << "=======>> Model test <<=======" << "\033[0m" << endl;
-    // // Perceptron<double> p2({22, 50}, p.getWeights(), p.getBias(), p.getBiasWeight(), p.getLearningRate(), p.getAccuracy(), p.getTarget());
-    // // p2.setActivationFunction("Linear");
-    // // p2.feedForward();
-    // // p2.display();
+    vector<float> inputs = {0.35, 0.9};
+    vector<float> weights_1 = {0.1, 0.8};
 
-    // Perceptron<double> p2({22, 50});
-    // p2.copyPerceptron(p);
-    // p2.setActivationFunction("Linear");
+    p1.setInputs(inputs);
+    p1.setWeights(weights_1);
+    p1.setBias(0);
+    p1.setLearningRate(0.01);
+    p1.setTarget(target);
+    p1.setAccuracy(0.01);
+
+    cout << "\033[1;31mPerceptron node 1\033[0m" << endl;
+
+    p1.setActivation("Linear");
+    p1.feedForward();
+    p1.display();
+    cout << endl;
+
+    p1.setActivation("Sigmoid");
+    p1.feedForward();
+    p1.display();
+    cout << endl;
+
+    cout << "\033[1;31mPerceptron node 2\033[0m" << endl;
+
+    vector<float> weights_2 = {0.4, 0.6};
+
+    p2.setInputs(inputs);
+    p2.setWeights(weights_2);
+    p2.setBias(0);
+    p2.setLearningRate(0.01);
+    p2.setTarget(target);
+    p2.setAccuracy(0.01);
+
+    p2.setActivation("Linear");
+    p2.feedForward();
+    p2.display();
+    cout << endl;
+
+    p2.setActivation("Sigmoid");
+    p2.feedForward();
+    p2.display();
+    cout << endl;
+
+    cout << "\033[1;31mPerceptron node 3\033[0m" << endl;
+
+    vector<float> weights_3 = {0.3, 0.9};
+
+    p3.setInputs({p1.getOutput(), p2.getOutput()});
+    p3.setWeights(weights_3);
+    p3.setBias(0);
+    p3.setLearningRate(0.01);
+    p3.setTarget(target);
+    p3.setAccuracy(0.01);
+
+    p3.setActivation("Linear");
+    p3.feedForward();
+    p3.display();
+    cout << endl;
+
+    p3.setActivation("Sigmoid");
+    p3.feedForward();
+    p3.display();
+    cout << endl;
+
+    // // * plot input and loss of model
+    // // plt::plot(p1.getInputs(), p1.getWeights(), "r-");
+    // // plt::scatter_colored(dat_a, dat_b, w, 50);
+    // // plt::plot(p1.getInputs(), p1.getWeights(), "r-");
+    // // vector<float> loss;
+    // // for (int i = 0; i < p1.getInputs().size(); i++) {
+    // //     p1.setInputs({p1.getInputs()[i]});
+    // //     p1.feedForward();
+    // //     loss.push_back(p1.getOutput());
+    // // }
+    // // plt::scatter(p1.getInputs(), loss, 50);
+    // // plt::xlabel("Input");
+    // // plt::ylabel("Loss");
+    // // plt::show();
+
+    // Perceptron<float> p2(p1);
+    // p2.setInputs({1, 2});
+    // p2.setWeights({0.1, 0.1});
     // p2.feedForward();
     // p2.display();
-    cout << "\033[1;31m" << "=======>> Perceptron Test <<=======" << "\033[0m" << endl;
-    Perceptron<double> ptest_0({1}, {0.1});
-    ptest_0.setBias(1);
-    ptest_0.setBiasWeight(0.1);
-    ptest_0.setLearningRate(0.00001);
-    ptest_0.setTarget(2);
-    ptest_0.setActivationFunction("Linear");
-    ptest_0.setAccuracy(10e-8);
-    ptest_0.feedForward();
-    ptest_0.display();
-
-    ptest_0.train();
-    ptest_0.display();
-
-    Perceptron<double> ptest_1({4});
-    ptest_1.copyPerceptron(ptest_0);
-    ptest_1.setActivationFunction("Linear");
-    ptest_1.feedForward();
-    ptest_1.display();
-
-    cout << "\033[1;31m" << "=======>> END <<=======" << "\033[0m" << endl;
-
-    // * Neural Network
-    cout << "\033[1;31m" << "=======>> Neural Network <<=======" << "\033[0m" << endl;
-    Neural<double> n;
-
-    // * set inputs
-    n.setInputs({22, 50, 50});
-    n.setWeights({{0.1, 2}, {0.3}, {0.5, 0.1}});
-    n.setBiasWeight({{0.1}, {0.2}, {0.1}});
-    n.MultiLayerPerceptron();
-    // n.setHiddenLayer();
-    n.display("perceptron");
-
-    // vector<vector<Perceptron<double>>> p;
-    // p.push_back({ptest_0, ptest_1});
-    // p[0][0].display();
-    // p[0][1].display();
-
-    // Perceptron<float> ptest_0({0.35, 0.9}, {0.0991, 0.7976});
-    // ptest_0.setBias(0);
-    // ptest_0.setBiasWeight(0);
-    // ptest_0.setActivationFunction("Sigmoid");
-    // ptest_0.feedForward();
-    // ptest_0.display();
-
-    // Perceptron<float> ptest_1({0.35, 0.9}, {0.3971, 0.5926});
-    // ptest_1.setBias(0);
-    // ptest_1.setBiasWeight(0);
-    // ptest_1.setActivationFunction("Sigmoid");
-    // ptest_1.feedForward();
-    // ptest_1.display();
-
-    // Perceptron<float> ptest_2({ptest_0.getOutput(), ptest_1.getOutput()}, {0.2724, 0.8731});
-    // ptest_2.setBias(0);
-    // ptest_2.setBiasWeight(0);
-    // ptest_2.setActivationFunction("Sigmoid");
-    // ptest_2.feedForward();
-    // ptest_2.display();
-
-    return 0;
 }

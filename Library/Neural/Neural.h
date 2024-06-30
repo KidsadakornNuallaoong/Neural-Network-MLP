@@ -23,20 +23,6 @@ class Neural : public Perceptron<T>{
 
         HiddenLayer hiddenLayer = {0, 0};
         string activationFunction = "step";
-
-    public:
-        Neural();
-        ~Neural();
-
-        void setInputs(vector<T> inputs, bool verbose = false);
-        void setWeights(vector<vector<T>> weights, bool verbose = false);
-        void setBiasWeight(vector<vector<T>> biasWeights, bool verbose = false);
-        void setHiddenLayer();
-        void MultiLayerPerceptron(int layer = 1);
-
-        void display(string option = "neuron");
-        void displayNeurons();
-        void displayPerceptrons();
 };
 
 
