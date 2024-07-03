@@ -205,7 +205,7 @@ T Perceptron<T>::feedForward()
     this->output += this->biasW;
 
     // * e = out - target
-    this->error = this->output - this->target;
+    this->error = this->target - activation(this->output);
     return this->output = activation(this->output);
 }
 
