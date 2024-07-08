@@ -115,6 +115,12 @@ T Perceptron<T>::Err()
 }
 
 template <typename T>
+T Perceptron<T>::Err(T target)
+{
+    return T(target - this->output);
+}
+
+template <typename T>
 T Perceptron<T>::MSE()
 {
     return T(pow(Err(),2)/2);

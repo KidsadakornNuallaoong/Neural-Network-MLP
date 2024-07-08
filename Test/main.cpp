@@ -125,4 +125,6 @@ int main() {
     p2.feedForward();
     p2.display();
     cout << endl;
+
+    cout << "\033[1;31mError Rate : \033[0m" << p2.Err(1) << endl << endl;
 }
