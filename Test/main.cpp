@@ -85,6 +85,22 @@ int main() {
 }
 */
 
+float Error_Each(float target, float output) {
+    return output*(1 - output)*(target - output);
+}
+
+float Error_Hidden(float target, float output, float weight, float error) {
+    return output*(1 - output)*weight*error;
+}
+
+float New_weight(float weight, float error, float output, float learningRate) {
+    return weight + learningRate*error*output;
+}
+
+float New_Bias(float output, float error, float learningRate) {
+    return output + learningRate*error;
+}
+
 int main() {
     Perceptron<float> p1[2];
     vector<float> inputs = {1, 1, 0, 1};
@@ -127,4 +143,38 @@ int main() {
     cout << endl;
 
     cout << "\033[1;31mError Rate : \033[0m" << p2.Err(1) << endl << endl;
+
+    cout << "\033[1;31mError at each node : \033[0m" << Error_Each(1, p2.getOutput()) << endl;
+
+    cout << "\033[1;31mError at hidden node 1 : \033[0m" << Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())) << endl; 
+
+    cout << "\033[1;31mError at hidden node 2 : \033[0m" << Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())) << endl << endl;
+
+    cout << "\033[1;31mNew weight at hidden node 1:1 : \033[0m" << New_weight(weight[0][0], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+
+    cout << "\033[1;31mNew weight at hidden node 2:1 : \033[0m" << New_weight(weight[1][0], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+
+    cout << "\033[1;31mNew weight at hidden node 1:2 : \033[0m" << New_weight(weight[0][1], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+
+    cout << "\033[1;31mNew weight at hidden node 2:2 : \033[0m" << New_weight(weight[1][1], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+
+    cout << "\033[1;31mNew weight at hidden node 1:3 : \033[0m" << New_weight(weight[0][2], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+
+    cout << "\033[1;31mNew weight at hidden node 2:3 : \033[0m" << New_weight(weight[1][2], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+
+    cout << "\033[1;31mNew weight at hidden node 1:4 : \033[0m" << New_weight(weight[0][3], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+
+    cout << "\033[1;31mNew weight at hidden node 2:4 : \033[0m" << New_weight(weight[1][3], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+
+    cout << "\033[1;31mNew weight at hidden node 3:1 : \033[0m" << New_weight(weight2[0], Error_Each(1, p2.getOutput()), p1[0].getOutput(), 0.8) << endl;
+
+    cout << "\033[1;31mNew weight at hidden node 3:2 : \033[0m" << New_weight(weight2[1], Error_Each(1, p2.getOutput()), p1[1].getOutput(), 0.8) << endl << endl;
+
+    cout << "\033[1;31mNew bias at hidden node 1:1 : \033[0m" << New_Bias(bias[0], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 0.8) << endl;
+
+    cout << "\033[1;31mNew bias at hidden node 2:1 : \033[0m" << New_Bias(bias[1], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 0.8) << endl;
+
+    cout << "\033[1;31mNew bias at hidden node 3:1 : \033[0m" << New_Bias(bias[2], Error_Each(1, p2.getOutput()), 1) << endl;
+
+    return 0;
 }
