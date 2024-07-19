@@ -52,6 +52,7 @@ class Perceptron
         void copyEnv(Perceptron<T> *p);
 
         T Err();
+        T Err(T target);
         T MSE();
         T MAE();
         T activation(T x);

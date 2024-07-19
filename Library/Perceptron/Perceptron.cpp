@@ -115,6 +115,12 @@ T Perceptron<T>::Err()
 }
 
 template <typename T>
+T Perceptron<T>::Err(T target)
+{
+    return T(target - this->output);
+}
+
+template <typename T>
 T Perceptron<T>::MSE()
 {
     return T(pow(Err(),2)/2);
@@ -205,7 +211,7 @@ T Perceptron<T>::feedForward()
     this->output += this->biasW;
 
     // * e = out - target
-    this->error = this->output - this->target;
+    this->error = this->target - activation(this->output);
     return this->output = activation(this->output);
 }
 

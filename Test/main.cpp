@@ -11,6 +11,7 @@
 using namespace std;
 // namespace plt = matplotlibcpp;
 
+/*
 int main() {
     Perceptron<float> p1, p2, p3;
 
@@ -26,7 +27,7 @@ int main() {
     p1.setTarget(target);
     p1.setAccuracy(0.01);
 
-    cout << "\033[1;31mPerceptron node 1\033[0m" << endl;
+    cout << "\033[1;31mPerceptron node 1\033[0m" << endl << endl;
 
     p1.setActivation("Linear");
     p1.feedForward();
@@ -38,7 +39,7 @@ int main() {
     p1.display();
     cout << endl;
 
-    cout << "\033[1;31mPerceptron node 2\033[0m" << endl;
+    cout << "\033[1;31mPerceptron node 2\033[0m" << endl << endl;
 
     vector<float> weights_2 = {0.4, 0.6};
 
@@ -59,7 +60,7 @@ int main() {
     p2.display();
     cout << endl;
 
-    cout << "\033[1;31mPerceptron node 3\033[0m" << endl;
+    cout << "\033[1;31mPerceptron node 3\033[0m" << endl << endl;
 
     vector<float> weights_3 = {0.3, 0.9};
 
@@ -80,24 +81,100 @@ int main() {
     p3.display();
     cout << endl;
 
-    // // * plot input and loss of model
-    // // plt::plot(p1.getInputs(), p1.getWeights(), "r-");
-    // // plt::scatter_colored(dat_a, dat_b, w, 50);
-    // // plt::plot(p1.getInputs(), p1.getWeights(), "r-");
-    // // vector<float> loss;
-    // // for (int i = 0; i < p1.getInputs().size(); i++) {
-    // //     p1.setInputs({p1.getInputs()[i]});
-    // //     p1.feedForward();
-    // //     loss.push_back(p1.getOutput());
-    // // }
-    // // plt::scatter(p1.getInputs(), loss, 50);
-    // // plt::xlabel("Input");
-    // // plt::ylabel("Loss");
-    // // plt::show();
+    return 0;
+}
+*/
 
-    // Perceptron<float> p2(p1);
-    // p2.setInputs({1, 2});
-    // p2.setWeights({0.1, 0.1});
-    // p2.feedForward();
-    // p2.display();
+float Error_Each(float target, float output) {
+    return output*(1 - output)*(target - output);
+}
+
+float Error_Hidden(float target, float output, float weight, float error) {
+    return output*(1 - output)*weight*error;
+}
+
+float New_weight(float weight, float error, float output, float learningRate) {
+    return weight + learningRate*error*output;
+}
+
+float New_Bias(float output, float error, float learningRate) {
+    return output + learningRate*error;
+}
+
+int main() {
+    Perceptron<float> p1[2];
+    vector<float> inputs = {1, 1, 0, 1};
+    vector<float> weight[2] = {{0.3, -0.2, 0.2, 0.1}, {0.3, 0.4, -0.3, 0.4}};
+    vector<float> weight2 = {-0.3, 0.2};
+    vector<float> bias = {0.2, 0.1, -0.3};
+
+    vector<int> target = {1, 1, 0, 1};
+
+    cout << "\033[1;31mPerceptron node 1\033[0m" << endl << endl;
+
+    p1[0].setInputs(inputs);
+    p1[0].setWeights(weight[0]);
+    p1[0].setBias(bias[0]);
+    p1[0].setActivation("Sigmoid");
+    p1[0].feedForward();
+    p1[0].display();
+    cout << endl;
+
+    cout << "\033[1;31mPerceptron node 2\033[0m" << endl << endl;
+
+    p1[1].setInputs(inputs);
+    p1[1].setWeights(weight[1]);
+    p1[1].setBias(bias[1]);
+    p1[1].setActivation("Sigmoid");
+    p1[1].feedForward();
+    p1[1].display();
+    cout << endl;
+
+    cout << "\033[1;31mPerceptron node 3\033[0m" << endl << endl;
+
+    Perceptron<float> p2;
+    p2.setInputs({p1[0].getOutput(), p1[1].getOutput()});
+    p2.setWeights(weight2);
+    p2.setBias(bias[2]);
+    p2.setActivation("Sigmoid");
+    p2.setTarget(target[0]);
+    p2.feedForward();
+    p2.display();
+    cout << endl;
+
+    cout << "\033[1;31mError Rate : \033[0m" << p2.Err(1) << endl << endl;
+
+    cout << "\033[1;31mError at each node : \033[0m" << Error_Each(1, p2.getOutput()) << endl;
+
+    cout << "\033[1;31mError at hidden node 1 : \033[0m" << Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())) << endl; 
+
+    cout << "\033[1;31mError at hidden node 2 : \033[0m" << Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())) << endl << endl;
+
+    cout << "\033[1;31mNew weight at hidden node 1:1 : \033[0m" << New_weight(weight[0][0], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+
+    cout << "\033[1;31mNew weight at hidden node 2:1 : \033[0m" << New_weight(weight[1][0], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+
+    cout << "\033[1;31mNew weight at hidden node 1:2 : \033[0m" << New_weight(weight[0][1], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+
+    cout << "\033[1;31mNew weight at hidden node 2:2 : \033[0m" << New_weight(weight[1][1], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+
+    cout << "\033[1;31mNew weight at hidden node 1:3 : \033[0m" << New_weight(weight[0][2], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+
+    cout << "\033[1;31mNew weight at hidden node 2:3 : \033[0m" << New_weight(weight[1][2], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+
+    cout << "\033[1;31mNew weight at hidden node 1:4 : \033[0m" << New_weight(weight[0][3], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+
+    cout << "\033[1;31mNew weight at hidden node 2:4 : \033[0m" << New_weight(weight[1][3], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+
+    cout << "\033[1;31mNew weight at hidden node 3:1 : \033[0m" << New_weight(weight2[0], Error_Each(1, p2.getOutput()), p1[0].getOutput(), 0.8) << endl;
+
+    cout << "\033[1;31mNew weight at hidden node 3:2 : \033[0m" << New_weight(weight2[1], Error_Each(1, p2.getOutput()), p1[1].getOutput(), 0.8) << endl << endl;
+
+    cout << "\033[1;31mNew bias at hidden node 1:1 : \033[0m" << New_Bias(bias[0], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 0.8) << endl;
+
+    cout << "\033[1;31mNew bias at hidden node 2:1 : \033[0m" << New_Bias(bias[1], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 0.8) << endl;
+
+    cout << "\033[1;31mNew bias at hidden node 3:1 : \033[0m" << New_Bias(bias[2], Error_Each(1, p2.getOutput()), 1) << endl;
+
+    return 0;
 }
