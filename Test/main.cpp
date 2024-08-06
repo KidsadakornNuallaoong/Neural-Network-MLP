@@ -150,31 +150,150 @@ int main() {
 
     cout << "\033[1;31mError at hidden node 2 : \033[0m" << Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())) << endl << endl;
 
-    cout << "\033[1;31mNew weight at hidden node 1:1 : \033[0m" << New_weight(weight[0][0], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+    vector<float> NW1 = {
+        New_weight(weight[0][0], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8),
+        New_weight(weight[0][1], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8),
+        New_weight(weight[0][2], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8),
+        New_weight(weight[0][3], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8)
+    };
 
-    cout << "\033[1;31mNew weight at hidden node 2:1 : \033[0m" << New_weight(weight[1][0], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+    vector<float> NW2 = {
+        New_weight(weight[1][0], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8),
+        New_weight(weight[1][1], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8),
+        New_weight(weight[1][2], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8),
+        New_weight(weight[1][3], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8)
+    };
 
-    cout << "\033[1;31mNew weight at hidden node 1:2 : \033[0m" << New_weight(weight[0][1], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+    vector<float> NW3 = {
+        New_weight(weight2[0], Error_Each(1, p2.getOutput()), p1[0].getOutput(), 0.8),
+        New_weight(weight2[1], Error_Each(1, p2.getOutput()), p1[1].getOutput(), 0.8)
+    };
 
-    cout << "\033[1;31mNew weight at hidden node 2:2 : \033[0m" << New_weight(weight[1][1], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+    vector<float> NB = {
+        New_Bias(bias[0], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 0.8),
+        New_Bias(bias[1], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 0.8),
+        New_Bias(bias[2], Error_Each(1, p2.getOutput()), 1)
+    };
 
-    cout << "\033[1;31mNew weight at hidden node 1:3 : \033[0m" << New_weight(weight[0][2], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+    // * show list NW1 and NW2
+    cout << "\033[1;31mNW1 : \033[0m";
+    for (int i = 0; i < NW1.size(); i++) {
+        cout << NW1[i] << " ";
+    }
+    cout << endl;
 
-    cout << "\033[1;31mNew weight at hidden node 2:3 : \033[0m" << New_weight(weight[1][2], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+    cout << "\033[1;31mNW2 : \033[0m";
+    for (int i = 0; i < NW2.size(); i++) {
+        cout << NW2[i] << " ";
+    }
+    cout << endl;
 
-    cout << "\033[1;31mNew weight at hidden node 1:4 : \033[0m" << New_weight(weight[0][3], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+    cout << "\033[1;31mNW3 : \033[0m";
+    for (int i = 0; i < NW3.size(); i++) {
+        cout << NW3[i] << " ";
+    }
+    cout << endl;
 
-    cout << "\033[1;31mNew weight at hidden node 2:4 : \033[0m" << New_weight(weight[1][3], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8) << endl;
+    cout << "\033[1;31mNB : \033[0m";
+    for (int i = 0; i < NB.size(); i++) {
+        cout << NB[i] << " ";
+    }
+    cout << endl;
 
-    cout << "\033[1;31mNew weight at hidden node 3:1 : \033[0m" << New_weight(weight2[0], Error_Each(1, p2.getOutput()), p1[0].getOutput(), 0.8) << endl;
+    p1[0].setWeights(NW1);
+    p1[0].setBias(NB[0]);
+    p1[1].setWeights(NW2);
+    p1[1].setBias(NB[1]);
 
-    cout << "\033[1;31mNew weight at hidden node 3:2 : \033[0m" << New_weight(weight2[1], Error_Each(1, p2.getOutput()), p1[1].getOutput(), 0.8) << endl << endl;
+    p2.setWeights(NW3);
+    p2.setBias(NB[2]);
 
-    cout << "\033[1;31mNew bias at hidden node 1:1 : \033[0m" << New_Bias(bias[0], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 0.8) << endl;
+    p1[0].feedForward();
+    p1[1].feedForward();
+    p2.feedForward();
 
-    cout << "\033[1;31mNew bias at hidden node 2:1 : \033[0m" << New_Bias(bias[1], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 0.8) << endl;
+    p1[0].display();
+    cout << endl;
+    
+    p1[1].display();
+    cout << endl;
+    
+    p2.display();
+    cout << endl;
 
-    cout << "\033[1;31mNew bias at hidden node 3:1 : \033[0m" << New_Bias(bias[2], Error_Each(1, p2.getOutput()), 1) << endl;
+    // * epoch 2
+    NW1 = {
+        New_weight(weight[0][0], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8),
+        New_weight(weight[0][1], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8),
+        New_weight(weight[0][2], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8),
+        New_weight(weight[0][3], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8)
+    };
+
+    NW2 = {
+        New_weight(weight[1][0], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8),
+        New_weight(weight[1][1], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8),
+        New_weight(weight[1][2], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8),
+        New_weight(weight[1][3], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8)
+    };
+
+    NW3 = {
+        New_weight(weight2[0], Error_Each(1, p2.getOutput()), p1[0].getOutput(), 0.8),
+        New_weight(weight2[1], Error_Each(1, p2.getOutput()), p1[1].getOutput(), 0.8)
+    };
+
+    NB = {
+        New_Bias(bias[0], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 0.8),
+        New_Bias(bias[1], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 0.8),
+        New_Bias(bias[2], Error_Each(1, p2.getOutput()), 1)
+    };
+
+    cout << "\033[1;31mEpoch 2\033[0m" << endl << endl;
+
+    // * show list NW1 and NW2
+    cout << "\033[1;31mNW1 : \033[0m";
+    for (int i = 0; i < NW1.size(); i++) {
+        cout << NW1[i] << " ";
+    }
+    cout << endl;
+
+    cout << "\033[1;31mNW2 : \033[0m";
+    for (int i = 0; i < NW2.size(); i++) {
+        cout << NW2[i] << " ";
+    }
+    cout << endl;
+
+    cout << "\033[1;31mNW3 : \033[0m";
+    for (int i = 0; i < NW3.size(); i++) {
+        cout << NW3[i] << " ";
+    }
+    cout << endl;
+
+    cout << "\033[1;31mNB : \033[0m";
+    for (int i = 0; i < NB.size(); i++) {
+        cout << NB[i] << " ";
+    }
+    cout << endl;
+
+    p1[0].setWeights(NW1);
+    p1[0].setBias(NB[0]);
+    p1[1].setWeights(NW2);
+    p1[1].setBias(NB[1]);
+
+    p2.setWeights(NW3);
+    p2.setBias(NB[2]);
+
+    p1[0].feedForward();
+    p1[1].feedForward();
+    p2.feedForward();
+
+    p1[0].display();
+    cout << endl;
+    
+    p1[1].display();
+    cout << endl;
+    
+    p2.display();
+    cout << endl;
 
     return 0;
 }
