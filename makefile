@@ -56,8 +56,8 @@ demo: build
 
 	@$(MAKE) --no-print-directory clean
 
-run:
-	@g++ main.cpp -o $(output)
+run: build
+	@g++ main.cpp ./$(Library_Path)/$(Perceptron_Path)/$(PerceptronName).o ./$(Library_Path)/$(MLP_Path)/$(MLPName).o -o $(output)
 	@./$(output)
 
 	@$(MAKE) --no-print-directory clean
