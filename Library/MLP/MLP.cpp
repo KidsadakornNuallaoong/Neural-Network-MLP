@@ -28,6 +28,9 @@ MultiLayerPerceptron<T>::~MultiLayerPerceptron()
     }
     layers.clear();
     layers.shrink_to_fit();
+
+    // * clear random seed
+    srand(0);
 }
 
 template <typename T>
@@ -126,7 +129,7 @@ T MultiLayerPerceptron<T>::activationDerivative(T x)
     if (activationType == "linear")
     {
         // * f(x) = x
-        return 1;
+        return x;
     }
     else if (activationType == "sigmoid")
     {
@@ -233,17 +236,19 @@ void MultiLayerPerceptron<T>::display()
 {
     // * Display layers
     for (int i = 0; i < layers.size(); ++i) {
-        cout << "Layer " << i << endl;
-        cout << "Node ";
+        cout << "Layer " << i << " -> ";
+        cout << "(" << activationType << ")" << endl;
         for (int j = 0; j < layers[i].size(); ++j) {
-            cout << j << " ";
+            cout << "Node " << j << " : ";
+            cout << "W: ";
+            for (int k = 0; k < layers[i][j].weights.size(); ++k) {
+                cout << layers[i][j].weights[k] << " ";
+            }
+            cout << "B: " << layers[i][j].bias << endl;
             // * display perceptron
-            layers[i][j].display();
+            // layers[i][j].display();
         }
-        cout << endl;
     }
-
-    cout << "Activation Type: " << activationType << endl;
 }
 
 template <typename T>
