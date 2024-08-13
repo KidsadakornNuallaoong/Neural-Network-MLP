@@ -1,299 +1,55 @@
 #include <iostream>
-#include <cmath>
 #include <vector>
-#include <thread>
-#include <mutex>
-
-#include "../Library/Perceptron/Perceptron.h"
-#include "../Library/Neural/Neural.h"
-// #include "matplotlibcpp.h"
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
+#include <omp.h>
+// #include "../Library/Perceptron/Perceptron.hpp"
+#include "../Library/MLP/MLP.hpp"
 
 using namespace std;
-// namespace plt = matplotlibcpp;
-
-/*
-int main() {
-    Perceptron<float> p1, p2, p3;
-
-    float target = 0.5;
-
-    vector<float> inputs = {0.35, 0.9};
-    vector<float> weights_1 = {0.1, 0.8};
-
-    p1.setInputs(inputs);
-    p1.setWeights(weights_1);
-    p1.setBias(0);
-    p1.setLearningRate(0.01);
-    p1.setTarget(target);
-    p1.setAccuracy(0.01);
-
-    cout << "\033[1;31mPerceptron node 1\033[0m" << endl << endl;
-
-    p1.setActivation("Linear");
-    p1.feedForward();
-    p1.display();
-    cout << endl;
-
-    p1.setActivation("Sigmoid");
-    p1.feedForward();
-    p1.display();
-    cout << endl;
-
-    cout << "\033[1;31mPerceptron node 2\033[0m" << endl << endl;
-
-    vector<float> weights_2 = {0.4, 0.6};
-
-    p2.setInputs(inputs);
-    p2.setWeights(weights_2);
-    p2.setBias(0);
-    p2.setLearningRate(0.01);
-    p2.setTarget(target);
-    p2.setAccuracy(0.01);
-
-    p2.setActivation("Linear");
-    p2.feedForward();
-    p2.display();
-    cout << endl;
-
-    p2.setActivation("Sigmoid");
-    p2.feedForward();
-    p2.display();
-    cout << endl;
-
-    cout << "\033[1;31mPerceptron node 3\033[0m" << endl << endl;
-
-    vector<float> weights_3 = {0.3, 0.9};
-
-    p3.setInputs({p1.getOutput(), p2.getOutput()});
-    p3.setWeights(weights_3);
-    p3.setBias(0);
-    p3.setLearningRate(0.01);
-    p3.setTarget(target);
-    p3.setAccuracy(0.01);
-
-    p3.setActivation("Linear");
-    p3.feedForward();
-    p3.display();
-    cout << endl;
-
-    p3.setActivation("Sigmoid");
-    p3.feedForward();
-    p3.display();
-    cout << endl;
-
-    return 0;
-}
-*/
-
-float Error_Each(float target, float output) {
-    return output*(1 - output)*(target - output);
-}
-
-float Error_Hidden(float target, float output, float weight, float error) {
-    return output*(1 - output)*weight*error;
-}
-
-float New_weight(float weight, float error, float output, float learningRate) {
-    return weight + learningRate*error*output;
-}
-
-float New_Bias(float output, float error, float learningRate) {
-    return output + learningRate*error;
-}
 
 int main() {
-    Perceptron<float> p1[2];
-    vector<float> inputs = {1, 1, 0, 1};
-    vector<float> weight[2] = {{0.3, -0.2, 0.2, 0.1}, {0.3, 0.4, -0.3, 0.4}};
-    vector<float> weight2 = {-0.3, 0.2};
-    vector<float> bias = {0.2, 0.1, -0.3};
 
-    vector<int> target = {1, 1, 0, 1};
-
-    cout << "\033[1;31mPerceptron node 1\033[0m" << endl << endl;
-
-    p1[0].setInputs(inputs);
-    p1[0].setWeights(weight[0]);
-    p1[0].setBias(bias[0]);
-    p1[0].setActivation("Sigmoid");
-    p1[0].feedForward();
-    p1[0].display();
-    cout << endl;
-
-    cout << "\033[1;31mPerceptron node 2\033[0m" << endl << endl;
-
-    p1[1].setInputs(inputs);
-    p1[1].setWeights(weight[1]);
-    p1[1].setBias(bias[1]);
-    p1[1].setActivation("Sigmoid");
-    p1[1].feedForward();
-    p1[1].display();
-    cout << endl;
-
-    cout << "\033[1;31mPerceptron node 3\033[0m" << endl << endl;
-
-    Perceptron<float> p2;
-    p2.setInputs({p1[0].getOutput(), p1[1].getOutput()});
-    p2.setWeights(weight2);
-    p2.setBias(bias[2]);
-    p2.setActivation("Sigmoid");
-    p2.setTarget(target[0]);
-    p2.feedForward();
-    p2.display();
-    cout << endl;
-
-    cout << "\033[1;31mError Rate : \033[0m" << p2.Err(1) << endl << endl;
-
-    cout << "\033[1;31mError at each node : \033[0m" << Error_Each(1, p2.getOutput()) << endl;
-
-    cout << "\033[1;31mError at hidden node 1 : \033[0m" << Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())) << endl; 
-
-    cout << "\033[1;31mError at hidden node 2 : \033[0m" << Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())) << endl << endl;
-
-    vector<float> NW1 = {
-        New_weight(weight[0][0], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8),
-        New_weight(weight[0][1], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8),
-        New_weight(weight[0][2], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8),
-        New_weight(weight[0][3], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8)
-    };
-
-    vector<float> NW2 = {
-        New_weight(weight[1][0], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8),
-        New_weight(weight[1][1], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8),
-        New_weight(weight[1][2], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8),
-        New_weight(weight[1][3], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8)
-    };
-
-    vector<float> NW3 = {
-        New_weight(weight2[0], Error_Each(1, p2.getOutput()), p1[0].getOutput(), 0.8),
-        New_weight(weight2[1], Error_Each(1, p2.getOutput()), p1[1].getOutput(), 0.8)
-    };
-
-    vector<float> NB = {
-        New_Bias(bias[0], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 0.8),
-        New_Bias(bias[1], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 0.8),
-        New_Bias(bias[2], Error_Each(1, p2.getOutput()), 1)
-    };
-
-    // * show list NW1 and NW2
-    cout << "\033[1;31mNW1 : \033[0m";
-    for (int i = 0; i < NW1.size(); i++) {
-        cout << NW1[i] << " ";
-    }
-    cout << endl;
-
-    cout << "\033[1;31mNW2 : \033[0m";
-    for (int i = 0; i < NW2.size(); i++) {
-        cout << NW2[i] << " ";
-    }
-    cout << endl;
-
-    cout << "\033[1;31mNW3 : \033[0m";
-    for (int i = 0; i < NW3.size(); i++) {
-        cout << NW3[i] << " ";
-    }
-    cout << endl;
-
-    cout << "\033[1;31mNB : \033[0m";
-    for (int i = 0; i < NB.size(); i++) {
-        cout << NB[i] << " ";
-    }
-    cout << endl;
-
-    p1[0].setWeights(NW1);
-    p1[0].setBias(NB[0]);
-    p1[1].setWeights(NW2);
-    p1[1].setBias(NB[1]);
-
-    p2.setWeights(NW3);
-    p2.setBias(NB[2]);
-
-    p1[0].feedForward();
-    p1[1].feedForward();
-    p2.feedForward();
-
-    p1[0].display();
-    cout << endl;
+    // * Test Multi-Layer Perceptron
+    vector<int> layersSize = {2, 3, 1};
+    MultiLayerPerceptron<double> mlp(layersSize);
     
-    p1[1].display();
-    cout << endl;
+    // * XOR Problem
+    vector<vector<double>> inputs = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+    vector<vector<double>> targets = {{0}, {1}, {1}, {0}};
+    mlp.setLayerWeights(0, {{0.5, 0.5}, {0.5, 0.5}, {0.5, 0.5}});
+    mlp.setLayerBias(0, {0.5, 0.5, 0.5});
+    mlp.setLayerWeights(1, {{0.5, 0.5, 0.5}});
+    mlp.setLayerBias(1, {0.5});
+    mlp.display();
+    double learningRate = 0.1;
+    int iterations = 0;
+
+    cout << "Training..." << endl;
+    while (!mlp.allOutputsCorrect(inputs, targets)) {
+        int index = rand() % inputs.size();
+        mlp.train(inputs[index], targets[index], learningRate);
+        iterations++;
+    }
     
-    p2.display();
-    cout << endl;
+    // * alert when training finished
 
-    // * epoch 2
-    NW1 = {
-        New_weight(weight[0][0], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8),
-        New_weight(weight[0][1], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8),
-        New_weight(weight[0][2], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8),
-        New_weight(weight[0][3], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 1, 0.8)
-    };
-
-    NW2 = {
-        New_weight(weight[1][0], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8),
-        New_weight(weight[1][1], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8),
-        New_weight(weight[1][2], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8),
-        New_weight(weight[1][3], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 1, 0.8)
-    };
-
-    NW3 = {
-        New_weight(weight2[0], Error_Each(1, p2.getOutput()), p1[0].getOutput(), 0.8),
-        New_weight(weight2[1], Error_Each(1, p2.getOutput()), p1[1].getOutput(), 0.8)
-    };
-
-    NB = {
-        New_Bias(bias[0], Error_Hidden(1, p1[0].getOutput(), weight2[0], Error_Each(1, p2.getOutput())), 0.8),
-        New_Bias(bias[1], Error_Hidden(1, p1[1].getOutput(), weight2[1], Error_Each(1, p2.getOutput())), 0.8),
-        New_Bias(bias[2], Error_Each(1, p2.getOutput()), 1)
-    };
-
-    cout << "\033[1;31mEpoch 2\033[0m" << endl << endl;
-
-    // * show list NW1 and NW2
-    cout << "\033[1;31mNW1 : \033[0m";
-    for (int i = 0; i < NW1.size(); i++) {
-        cout << NW1[i] << " ";
-    }
-    cout << endl;
-
-    cout << "\033[1;31mNW2 : \033[0m";
-    for (int i = 0; i < NW2.size(); i++) {
-        cout << NW2[i] << " ";
-    }
-    cout << endl;
-
-    cout << "\033[1;31mNW3 : \033[0m";
-    for (int i = 0; i < NW3.size(); i++) {
-        cout << NW3[i] << " ";
-    }
-    cout << endl;
-
-    cout << "\033[1;31mNB : \033[0m";
-    for (int i = 0; i < NB.size(); i++) {
-        cout << NB[i] << " ";
-    }
-    cout << endl;
-
-    p1[0].setWeights(NW1);
-    p1[0].setBias(NB[0]);
-    p1[1].setWeights(NW2);
-    p1[1].setBias(NB[1]);
-
-    p2.setWeights(NW3);
-    p2.setBias(NB[2]);
-
-    p1[0].feedForward();
-    p1[1].feedForward();
-    p2.feedForward();
-
-    p1[0].display();
-    cout << endl;
+    cout << "Training finished!" << endl;
+    cout << "Iterations: " << iterations << endl;
+    cout << "Accuracy: " << mlp.calculateAccuracy(inputs, targets) * 100 << "%" << endl;
+    cout << "Loss: " << mlp.calculateLoss(inputs, targets) << endl;
+    cout << "All outputs correct: " << mlp.allOutputsCorrect(inputs, targets) << endl;
     
-    p1[1].display();
-    cout << endl;
-    
-    p2.display();
-    cout << endl;
+    for(const auto& input : inputs) {
+        cout << "Input: ";
+        for(const auto& i : input) {
+            cout << i << " ";
+        }
+        cout << "Output: " << round(mlp.feedForward(input)[0]) << endl;
+    }
+
+    mlp.display();
 
     return 0;
 }

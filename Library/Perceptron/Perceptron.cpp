@@ -1,4 +1,4 @@
-#include "Perceptron.h"
+#include "Perceptron.hpp"
 #include <cmath>
 #include <string>
 #include <chrono>
@@ -7,139 +7,94 @@ using namespace std;
 using std::vector;
 
 template <typename T>
-Perceptron<T>::Perceptron(){
-    this->inputs = vector<T>();
-    this->weights = vector<T>();
-    this->biasW = 0;
+Perceptron<T>::Perceptron()
+{
+    // * Constructor
+    this->bias = 0;
     this->output = 0;
-    this->learningRate = 0.1;
-    this->target = 0;
-    this->error = 0;
-    this->accuracy = 0.1;
-    this->activationType = "Linear";
+    this->activationType = "sigmoid";
 }
 
 template <typename T>
-Perceptron<T>::~Perceptron(){
-    this->inputs.clear();
-    this->weights.clear();
-    this->inputs.shrink_to_fit();
-    this->weights.shrink_to_fit();
+Perceptron<T>::Perceptron(int inputSize)
+{
+    init(inputSize);
 }
 
 template <typename T>
-void Perceptron<T>::setInputs(vector<T> inputs) {
-    this->inputs = inputs;
+Perceptron<T>::~Perceptron()
+{
+    // * Destructor
+    // * Free memory
+    weights.clear();
+    weights.shrink_to_fit();
+
+    // * Reset bias
+    bias = 0;
+    output = 0;
+    activationType = "sigmoid";
 }
 
 template <typename T>
-void Perceptron<T>::setWeights(vector<T> weights) {
+void Perceptron<T>::init(int inputSize)
+{
+    weights.resize(inputSize);
+    for (int i = 0; i < inputSize; ++i) {
+        weights[i] = ((T)rand() / RAND_MAX) * 2 - 1; // Random values between -1 and 1
+    }
+    bias = ((T)rand() / RAND_MAX) * 2 - 1;
+}
+
+template <typename T>
+void Perceptron<T>::setWeights(const vector<T>& weights) {
     this->weights = weights;
 }
 
 template <typename T>
-void Perceptron<T>::setBias(T biasW) {
-    this->biasW = biasW;
-}
-template <typename T>
-void Perceptron<T>::setLearningRate(T learningRate) {
-    this->learningRate = learningRate;
-}
-template <typename T>
-void Perceptron<T>::setTarget(T target) {
-    this->target = target;
-}
-
-template <typename T>
-void Perceptron<T>::setError(T error)
+void Perceptron<T>::setBias(T bias)
 {
-    this->error = error;
+    this->bias = T(bias);
 }
 
 template <typename T>
-void Perceptron<T>::setAccuracy(T accuracy)
-{
-    this->accuracy = accuracy;
-}
-
-template <typename T>
-vector<T> Perceptron<T>::getInputs()
-{
-    return vector<T>(this->inputs);
-}
-
-template <typename T>
-vector<T> Perceptron<T>::getWeights()
+vector<T> Perceptron<T>::_weights()
 {
     return vector<T>(this->weights);
 }
 
 template <typename T>
-T Perceptron<T>::getBias()
+T Perceptron<T>::_bias()
 {
-    return T(this->biasW);
+    return T(this->bias);
 }
 
 template <typename T>
-T Perceptron<T>::getLearningRate()
+void Perceptron<T>::typeActivation(string type)
 {
-    return T(this->learningRate);
-}
+    // * change type to lower case
+    for (int i = 0; i < type.length(); i++)
+    {
+        type[i] = tolower(type[i]);
+    }
 
-template <typename T>
-T Perceptron<T>::getTarget()
-{
-    return T(this->target);
-}
+    if (!(type == "linear" || 
+          type == "sigmoid" ||
+          type == "tanh" ||
+          type == "relu" ||
+          type == "leakyrelu" ||
+          type == "softmax" ||
+          type == "step"))
+    {
+        cerr << "\033[1;31mActivation Type Not Found\033[0m" << endl;
+        return;
+    }
 
-template <typename T>
-T Perceptron<T>::getOutput()
-{
-    return T(this->output);
-}
-
-template <typename T>
-void Perceptron<T>::copyEnv(Perceptron<T> *p) {
-    this->weights = p->getWeights();
-    this->biasW = p->getBias();
-    this->learningRate = p->getLearningRate();
-    this->target = p->getTarget();
-    this->accuracy = p->accuracy;
-    this->activationType = p->activationType;
-}
-
-template <typename T>
-T Perceptron<T>::Err()
-{
-    return T(this->error);
-}
-
-template <typename T>
-T Perceptron<T>::Err(T target)
-{
-    return T(target - this->output);
-}
-
-template <typename T>
-T Perceptron<T>::MSE()
-{
-    return T(pow(Err(),2)/2);
-}
-
-template <typename T>
-T Perceptron<T>::MAE()
-{
-    return T(abs(Err()));
+    this->activationType = type;
 }
 
 template <typename T>
 T Perceptron<T>::activation(T x)
 {
-    for (int i = 0; i < activationType.length(); i++)
-    {
-        activationType[i] = tolower(activationType[i]);
-    }
-
     if (activationType == "linear")
     {
         // * f(x) = x
@@ -186,128 +141,69 @@ T Perceptron<T>::activation(T x)
 }
 
 template <typename T>
-void Perceptron<T>::setActivation(string type)
+T Perceptron<T>::feedForward(const vector<T>& inputs)
 {
-    // * change type to lower case
-    for (int i = 0; i < type.length(); i++)
-    {
-        type[i] = tolower(type[i]);
+    T total = bias;
+    for (int i = 0; i < weights.size(); ++i) {
+        total += weights[i] * inputs[i];
     }
-    this->activationType = type;
+
+    output = activation(total);
+    return T(output);
 }
 
 template <typename T>
-T Perceptron<T>::feedForward()
+T Perceptron<T>::feedForward(const vector<T>& inputs, T bias)
 {
-    // * calculate the output
-    // * output = ∑(inputs * weights) + bias
-    this->output = 0;
-    for (int i = 0; i < this->inputs.size(); i++)
-    {
-        // * ∑(inputs * weights)
-        this->output += this->inputs[i] * this->weights[i];
+    T total = bias;
+    for (int i = 0; i < weights.size(); ++i) {
+        total += weights[i] * inputs[i];
     }
-    // * + bias
-    this->output += this->biasW;
 
-    // * e = out - target
-    this->error = this->target - activation(this->output);
-    return this->output = activation(this->output);
+    output = activation(total);
+    return T(output);
 }
 
 template <typename T>
-T Perceptron<T>::backpropagate()
+void Perceptron<T>::train(const vector<T>& inputs, T target , const T learningRate)
 {
-    // * calculate updated weights
-    // * w' = w - η * ∂E/∂w
-    // * b' = b - η * ∂E/∂b
-    // * ∂E/∂w = 2 * (target - output) * input
-    // * ∂E/∂b = 2 * (target - output)
-    // * E = 1/2 * (target - output)^2
-    // * η = learning rate
-    for (int i = 0; i < this->weights.size(); i++)
-    {
-        this->weights[i] = this->weights[i] - this->learningRate * 2 * this->error * this->inputs[i];
+    T error = target - feedForward(inputs);
+    for (int i = 0; i < weights.size(); ++i) {
+        weights[i] += error * inputs[i] * learningRate;
     }
-    this->biasW = this->biasW - this->learningRate * 2 * this->error;
-    feedForward();
-    return this->error;
+    bias += error * learningRate;
+    cout << endl;
 }
 
 template <typename T>
-void Perceptron<T>::train(bool verbose)
+Perceptron<T> Perceptron<T>::cpyEnv() const
 {
-    auto start = chrono::high_resolution_clock::now();
-    for (int i = 0; i < 100000; i++)
-    {
-        backpropagate();
-        if (verbose)
-        {
-            display();
-        }
-        if (Err() < accuracy && Err() > accuracy*-1 && verbose)
-        {
-            break;
-        }
-    }
-    auto end = chrono::high_resolution_clock::now();
-    if(verbose){
-        std::chrono::duration<double> duration = end - start;
-        cout << "Train Time: " << duration.count() << "s" << endl;
-    }
+    return Perceptron<T>(*this);
 }
 
 template <typename T>
-void Perceptron<T>::train(int epoch, T accuracy, bool verbose)
+T Perceptron<T>::getOutput()
 {
-    auto start = chrono::high_resolution_clock::now();
-    for (int i = 0; i < epoch; i++)
-    {
-        backpropagate();
-        if (verbose)
-        {
-            display();
-        }
-        if (Err() < accuracy && Err() > accuracy*-1 && verbose)
-        {
-            cout << "Error: " << Err() << endl;
-            break;
-        }
-    }
-    auto end = chrono::high_resolution_clock::now();
-    if(verbose){
-        std::chrono::duration<double> duration = end - start;
-        cout << "Train Time: " << duration.count() << "s" << endl;
-    }
+    return T(this->output);
 }
 
 template <typename T>
 void Perceptron<T>::display()
 {
-    cout << "Inputs: ";
-    for (int i = 0; i < this->inputs.size(); i++)
-    {
-        cout << this->inputs[i] << " ";
+    cout << "\033[1;32m-->> Perceptron <<--\033[0m" << endl << endl;
+    cout << "\033[1;33mSize:\033[0m " << weights.size() << endl;
+    cout << "\033[1;33mWeights:\033[0m ";
+    for (int i = 0; i < weights.size(); ++i) {
+        cout << weights[i] << " ";
     }
     cout << endl;
-
-    cout << "Weights: ";
-    for (int i = 0; i < this->weights.size(); i++)
-    {
-        cout << this->weights[i] << " ";
-    }
-    cout << endl;
-
-    cout << "Bias: " << this->biasW << endl;
-    cout << "Act: " << this->activationType << " ";
-    cout << "Learning Rate: " << this->learningRate << endl;
-    cout << "Target: " << this->target << endl;
-    cout << "Output: " << this->output << " ";
-    cout << "Error: " << this->error << endl;
-    cout << "MSE: " << this->MSE() << " ";
-    cout << "MAE: " << this->MAE() << endl;
+    cout << "\033[1;33mBias:\033[0m " << bias << endl;
+    cout << "\033[1;33mActivation Type:\033[0m " << activationType << endl;
+    cout << "\033[1;33mOutput:\033[0m " << output << endl;
 }
 
 // Explicitly instantiate the template for the types you need
+template class Perceptron<long>;
 template class Perceptron<double>;
 template class Perceptron<float>;
+template class Perceptron<int>;
