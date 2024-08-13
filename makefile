@@ -45,13 +45,12 @@ build:
 	@echo "\033[1;32mBuild Perceptron compiled successfully!\033[0m"
 
 	@g++ ./$(Library_Path)/$(MLP_Path)/MLP.cpp -o ./$(Library_Path)/$(MLP_Path)/$(MLPName).o -c
-	@echo "\033[1;32mBuild Neural Network compiled successfully!\033[0m"
-
-	@g++ ./Test/main.cpp ./$(Library_Path)/$(Perceptron_Path)/$(PerceptronName).o ./$(Library_Path)/$(MLP_Path)/$(MLPName).o -o ./Test/$(output) $(Flags)
-	@echo "\033[1;32mAssembly code successfully!\033[0m"
+	@echo "\033[1;32mBuild MultiLayerPerceptron compiled successfully!\033[0m"
 
 demo: build
 	@clear
+	@g++ ./Test/main.cpp ./$(Library_Path)/$(Perceptron_Path)/$(PerceptronName).o ./$(Library_Path)/$(MLP_Path)/$(MLPName).o -o ./Test/$(output) $(Flags)
+	@echo "\033[1;32mAssembly code successfully!\033[0m"
 	@./Test/$(output)
 
 	@$(MAKE) --no-print-directory clean
