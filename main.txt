@@ -1,0 +1,427 @@
+/*
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
+#include <omp.h>
+
+using namespace std;
+
+// Activation function (Sigmoid)
+double sigmoid(double x) {
+    return 1.0 / (1.0 + exp(-x));
+}
+
+// Derivative of the sigmoid function
+double sigmoid_derivative(double x) {
+    return x * (1.0 - x);
+}
+
+// Perceptron class
+class Perceptron {
+public:
+    vector<double> weights;
+    double bias;
+    double output;
+
+    // Initialize perceptron with random weights and bias
+    Perceptron(int input_size) {
+        weights.resize(input_size);
+        for (int i = 0; i < input_size; ++i) {
+            weights[i] = ((double)rand() / RAND_MAX) * 2 - 1; // Random values between -1 and 1
+        }
+        bias = ((double)rand() / RAND_MAX) * 2 - 1;
+    }
+
+    // Forward pass
+    double feedforward(const vector<double>& inputs) {
+        double total = bias;
+        for (int i = 0; i < weights.size(); ++i) {
+            total += weights[i] * inputs[i];
+        }
+        output = sigmoid(total);
+        return output;
+    }
+};
+
+// Multilayer Perceptron class
+class MultilayerPerceptron {
+public:
+    vector<vector<Perceptron>> layers;
+
+    // Initialize MLP with given layer sizes
+    MultilayerPerceptron(const vector<int>& layer_sizes) {
+        for (int i = 0; i < layer_sizes.size() - 1; ++i) {
+            layers.push_back(vector<Perceptron>());
+            for (int j = 0; j < layer_sizes[i + 1]; ++j) {
+                layers[i].push_back(Perceptron(layer_sizes[i]));
+            }
+        }
+    }
+
+    // Forward pass through the network
+    vector<double> feedforward(const vector<double>& inputs) {
+        vector<double> outputs = inputs;
+        for (int i = 0; i < layers.size(); ++i) {
+            vector<double> new_outputs;
+            for (int j = 0; j < layers[i].size(); ++j) {
+                new_outputs.push_back(layers[i][j].feedforward(outputs));
+            }
+            outputs = new_outputs;
+        }
+        return outputs;
+    }
+
+    // Backpropagation and weights update
+    void train(const vector<double>& inputs, const vector<double>& targets, double learning_rate) {
+        vector<vector<double>> layer_outputs;
+        vector<double> output = inputs;
+        layer_outputs.push_back(output);
+
+        // Forward pass and save outputs
+        for (int i = 0; i < layers.size(); ++i) {
+            output = feedforward(output);
+            layer_outputs.push_back(output);
+        }
+
+        // Calculate errors for output layer
+        vector<double> errors;
+        for (int i = 0; i < targets.size(); ++i) {
+            errors.push_back(targets[i] - layer_outputs.back()[i]);
+        }
+
+        // Backpropagation with parallel weight updates
+        for (int i = layers.size() - 1; i >= 0; --i) {
+            vector<double> next_errors(layers[i][0].weights.size(), 0.0);
+
+            // Parallelize the loop over neurons in the current layer
+            #pragma omp parallel for
+            for (int j = 0; j < layers[i].size(); ++j) {
+                double delta = errors[j] * sigmoid_derivative(layer_outputs[i + 1][j]);
+                for (int k = 0; k < layers[i][j].weights.size(); ++k) {
+                    layers[i][j].weights[k] += learning_rate * delta * layer_outputs[i][k];
+                    #pragma omp atomic
+                    next_errors[k] += delta * layers[i][j].weights[k]; // Accumulate errors for the previous layer
+                }
+                layers[i][j].bias += learning_rate * delta;
+            }
+
+            errors = next_errors;
+        }
+    }
+
+    // Function to check if all outputs are correct
+    bool all_outputs_correct(const vector<vector<double>>& inputs, const vector<vector<double>>& targets) {
+        for (int i = 0; i < inputs.size(); ++i) {
+            vector<double> output = feedforward(inputs[i]);
+            for (int j = 0; j < output.size(); ++j) {
+                if (round(output[j]) != targets[i][j]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+};
+
+int main() {
+    srand((unsigned int)time(NULL));
+
+    // Example of usage
+    vector<int> layers = {2, 3, 1}; // 2 inputs, 1 hidden layer with 3 neurons, 1 output
+    MultilayerPerceptron mlp(layers);
+
+    // Training data (XOR problem)
+    vector<vector<double>> inputs = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+    vector<vector<double>> targets = {{0}, {1}, {1}, {0}};
+
+    // Training until the correct output is achieved
+    int iterations = 0;
+    double learning_rate = 0.01;
+    while (!mlp.all_outputs_correct(inputs, targets)) {
+        int index = rand() % inputs.size();
+        mlp.train(inputs[index], targets[index], learning_rate);
+        iterations++;
+    }
+
+    cout << "Training completed in " << iterations << " iterations." << endl;
+
+    // Testing
+    for (const auto& input : inputs) {
+        vector<double> output = mlp.feedforward(input);
+        cout << "Input: ";
+        for (double val : input) cout << val << " ";
+        cout << "Output: " << round(output[0]) << endl;
+    }
+
+    return 0;
+}
+*/
+
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
+#include <omp.h>
+
+using namespace std;
+
+// Activation function (Sigmoid)
+double sigmoid(double x) {
+    return 1.0 / (1.0 + exp(-x));
+}
+
+// Derivative of the sigmoid function
+double sigmoid_derivative(double x) {
+    return x * (1.0 - x);
+}
+
+// Perceptron class
+class Perceptron {
+public:
+    vector<double> weights;
+    double bias;
+    double output;
+
+    // Initialize perceptron with random weights and bias
+    Perceptron(int input_size) {
+        weights.resize(input_size);
+        for (int i = 0; i < input_size; ++i) {
+            weights[i] = ((double)rand() / RAND_MAX) * 2 - 1; // Random values between -1 and 1
+        }
+        bias = ((double)rand() / RAND_MAX) * 2 - 1;
+    }
+
+    // Forward pass
+    double feedforward(const vector<double>& inputs) {
+        double total = bias;
+        for (int i = 0; i < weights.size(); ++i) {
+            total += weights[i] * inputs[i];
+        }
+
+        output = sigmoid(total);
+        return output;
+    }
+
+    // Set the weights manually
+    void set_weights(const vector<double>& new_weights) {
+        if (new_weights.size() != weights.size()) {
+            cerr << "Error: Size of new weights does not match the number of weights." << endl;
+            return;
+        }
+        weights = new_weights;
+    }
+
+    // Set the bias manually
+    void set_bias(double new_bias) {
+        bias = new_bias;
+    }
+};
+
+// Multilayer Perceptron class
+class MultilayerPerceptron {
+public:
+    vector<vector<Perceptron>> layers;
+
+    // Initialize MLP with given layer sizes
+    MultilayerPerceptron(const vector<int>& layer_sizes) {
+        for (int i = 0; i < layer_sizes.size() - 1; ++i) {
+            layers.push_back(vector<Perceptron>());
+            for (int j = 0; j < layer_sizes[i + 1]; ++j) {
+                layers[i].push_back(Perceptron(layer_sizes[i]));
+            }
+        }
+    }
+
+    // Forward pass through the network
+    vector<double> feedforward(const vector<double>& inputs) {
+        vector<double> outputs = inputs;
+        for (int i = 0; i < layers.size(); ++i) {
+            vector<double> new_outputs;
+            for (int j = 0; j < layers[i].size(); ++j) {
+                new_outputs.push_back(layers[i][j].feedforward(outputs));
+            }
+            outputs = new_outputs;
+        }
+        return outputs;
+    }
+
+    // Backpropagation and weights update
+    void train(const vector<double>& inputs, const vector<double>& targets, double learning_rate) {
+        vector<vector<double>> layer_outputs;
+        vector<double> output = inputs;
+        layer_outputs.push_back(output);
+
+        // Forward pass and save outputs
+        for (int i = 0; i < layers.size(); ++i) {
+            output = feedforward(output);
+            layer_outputs.push_back(output);
+        }
+
+        // Calculate errors for output layer
+        vector<double> errors;
+        for (int i = 0; i < targets.size(); ++i) {
+            errors.push_back(targets[i] - layer_outputs.back()[i]);
+        }
+
+        // Backpropagation with parallel weight updates
+        for (int i = layers.size() - 1; i >= 0; --i) {
+            vector<double> next_errors(layers[i][0].weights.size(), 0.0);
+
+            // Parallelize the loop over neurons in the current layer
+            #pragma omp parallel for
+            for (int j = 0; j < layers[i].size(); ++j) {
+                double delta = errors[j] * sigmoid_derivative(layer_outputs[i + 1][j]);
+                for (int k = 0; k < layers[i][j].weights.size(); ++k) {
+                    layers[i][j].weights[k] += learning_rate * delta * layer_outputs[i][k];
+                    #pragma omp atomic
+                    next_errors[k] += delta * layers[i][j].weights[k]; // Accumulate errors for the previous layer
+                }
+                layers[i][j].bias += learning_rate * delta;
+            }
+
+            errors = next_errors;
+        }
+    }
+
+    // Function to calculate accuracy
+    double calculate_accuracy(const vector<vector<double>>& inputs, const vector<vector<double>>& targets) {
+        int correct = 0;
+        for (int i = 0; i < inputs.size(); ++i) {
+            vector<double> output = feedforward(inputs[i]);
+            for (int j = 0; j < output.size(); ++j) {
+                if (round(output[j]) == targets[i][j]) {
+                    correct++;
+                }
+            }
+        }
+        return (double)correct / (inputs.size() * targets[0].size());
+    }
+
+    // Function to calculate loss (Mean Squared Error)
+    double calculate_loss(const vector<vector<double>>& inputs, const vector<vector<double>>& targets) {
+        double total_loss = 0.0;
+        for (int i = 0; i < inputs.size(); ++i) {
+            vector<double> output = feedforward(inputs[i]);
+            for (int j = 0; j < output.size(); ++j) {
+                double error = targets[i][j] - output[j];
+                total_loss += error * error;
+            }
+        }
+        return total_loss / (inputs.size() * targets[0].size());
+    }
+
+    // Function to check if all outputs are correct
+    bool all_outputs_correct(const vector<vector<double>>& inputs, const vector<vector<double>>& targets) {
+        for (int i = 0; i < inputs.size(); ++i) {
+            vector<double> output = feedforward(inputs[i]);
+            for (int j = 0; j < output.size(); ++j) {
+                if (round(output[j]) != targets[i][j]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // Function to set weights and biases for a specific layer
+    void set_layer_weights(int layer_index, const vector<vector<double>>& new_weights) {
+        if (layer_index >= layers.size()) {
+            cerr << "Error: Invalid layer index." << endl;
+            return;
+        }
+        if (new_weights.size() != layers[layer_index].size()) {
+            cerr << "Error: Size of new weights does not match the number of neurons in the layer." << endl;
+            return;
+        }
+        for (int i = 0; i < layers[layer_index].size(); ++i) {
+            layers[layer_index][i].set_weights(new_weights[i]);
+        }
+    }
+
+    void set_layer_biases(int layer_index, const vector<double>& new_biases) {
+        if (layer_index >= layers.size()) {
+            cerr << "Error: Invalid layer index." << endl;
+            return;
+        }
+        if (new_biases.size() != layers[layer_index].size()) {
+            cerr << "Error: Size of new biases does not match the number of neurons in the layer." << endl;
+            return;
+        }
+        for (int i = 0; i < layers[layer_index].size(); ++i) {
+            layers[layer_index][i].set_bias(new_biases[i]);
+        }
+    }
+
+    // Clone the current MLP into a new MLP
+    MultilayerPerceptron clone() const {
+        return MultilayerPerceptron(*this); // Use copy constructor
+    }
+};
+
+int main() {
+    srand((unsigned int)time(NULL));
+
+    // Example of usage
+    vector<int> layers = {2, 3, 1}; // 2 inputs, 1 hidden layer with 3 neurons, 1 output
+    MultilayerPerceptron mlp(layers);
+
+    // Manually set weights and biases for the hidden layer
+    mlp.set_layer_weights(0, {{0.15, 0.20}, {0.25, 0.30}, {0.35, 0.40}});
+    mlp.set_layer_biases(0, {0.35, 0.35, 0.35});
+
+    // Manually set weights and biases for the output layer
+    mlp.set_layer_weights(1, {{0.40, 0.45, 0.50}});
+    mlp.set_layer_biases(1, {0.60});
+
+    // Training data (XOR problem)
+    vector<vector<double>> inputs = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+    vector<vector<double>> targets = {{1}, {0}, {1}, {0}};
+    
+    cout << "Environment learning" << endl;
+    // Training
+    int iterations = 0;
+    double learning_rate = 0.1;
+    while (!mlp.all_outputs_correct(inputs, targets)) {
+        int index = rand() % inputs.size();
+        mlp.train(inputs[index], targets[index], learning_rate);
+        iterations++;
+
+        // Optionally, you can calculate accuracy and loss during training
+        double accuracy = mlp.calculate_accuracy(inputs, targets);
+        double loss = mlp.calculate_loss(inputs, targets);
+        cout << "Iteration " << iterations << " - Accuracy: " << accuracy * 100 << "%, Loss: " << loss << endl;
+    }
+
+    cout << "Training completed in " << iterations << " iterations." << endl;
+
+    // Final accuracy and loss
+    double final_accuracy = mlp.calculate_accuracy(inputs, targets);
+    double final_loss = mlp.calculate_loss(inputs, targets);
+    cout << "Final Accuracy: " << final_accuracy * 100 << "%, Final Loss: " << final_loss << endl;
+
+    // Testing
+    for (const auto& input : inputs) {
+        vector<double> output = mlp.feedforward(input);
+        cout << "Input: ";
+        for (double val : input) cout << val << " ";
+        cout << "Output: " << round(output[0]) << endl;
+    }
+    cout << endl;
+    
+    cout << "Cloning the MLP..." << endl;
+
+    // Clone the MLP
+    MultilayerPerceptron mlp_clone = mlp.clone();
+    // Testing
+    for (const auto& input : inputs) {
+        vector<double> output = mlp_clone.feedforward(input);
+        cout << "Input: ";
+        for (double val : input) cout << val << " ";
+        cout << "Output: " << round(output[0]) << endl;
+    }
+
+    return 0;
+}
