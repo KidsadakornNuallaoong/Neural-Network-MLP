@@ -19,17 +19,15 @@ build:
 	@g++ $(Library_Path)\$(MLP_Path)\MLP.cpp -o $(Library_Path)\$(MLP_Path)\$(MLPName).o -c
 	@echo Build Neural Network compiled successfully!
 
+demo: build
 	@g++ Test\main.cpp $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o $(Library_Path)\$(MLP_Path)\$(MLPName).o -o $(output) $(Flags)
 	@echo Assembly code successfully!
-
-demo: build
-	@cls
 	@$(output)
 
 	@$(MAKE) --no-print-directory clean
 
-run:
-	@g++ main.cpp -o $(output)
+run: build
+	@g++ main.cpp $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o $(Library_Path)\$(MLP_Path)\$(MLPName).o -o $(output) $(Flags)
 	@$(output)
 
 	@$(MAKE) --no-print-directory clean
