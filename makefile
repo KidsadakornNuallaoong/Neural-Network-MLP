@@ -33,7 +33,7 @@ run: build
 	@$(MAKE) --no-print-directory clean
 
 clean:
-	@del /f $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o $(Library_Path)\$(MLP_Path)\$(MLPName).o *.o *.out *.exe $(output) > nul  2>&1 .\test\*.o .\test\*.out .\test\*.exe .\Test\$(output) > null 2>&1
+	@del /f $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o $(Library_Path)\$(MLP_Path)\$(MLPName).o *.o *.out *.exe $(output) > nul  2>&1 .\test\*.o .\test\*.out .\test\*.exe .\Test\$(output) > nul 2>&1
 else
 
 Flags= -fopenmp

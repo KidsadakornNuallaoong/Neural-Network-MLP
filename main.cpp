@@ -10,6 +10,7 @@
 using namespace std;
 
 int main() {
+    srand((unsigned int)time(NULL));
 
     // * Test Multi-Layer Perceptron
     vector<int> layersSize = {2, 3, 1};
@@ -40,19 +41,21 @@ int main() {
     double learningRate = 0.1;
     int iterations = 0;
 
-    cout << "Training..." << endl;
-    while (!mlp.allOutputsCorrect(inputs, targets)) {
-        int index = rand() % inputs.size();
-        mlp.train(inputs[index], targets[index], learningRate);
-        iterations++;
-    }
+    // cout << "Training..." << endl;
+    // while (!mlp.allOutputsCorrect(inputs, targets)) {
+    //     int index = rand() % inputs.size();
+    //     mlp.train(inputs[index], targets[index], learningRate);
+    //     iterations++;
+    // }
+
+    mlp.fitModel(inputs, targets, learningRate);
 
 
-    cout << "Training finished!" << endl;
-    cout << "Iterations: " << iterations << endl;
-    cout << "Accuracy: " << mlp.calculateAccuracy(inputs, targets) * 100 << "%" << endl;
-    cout << "Loss: " << mlp.calculateLoss(inputs, targets) << endl;
-    cout << "All outputs correct: " << mlp.allOutputsCorrect(inputs, targets) << endl;
+    // cout << "Training finished!" << endl;
+    // cout << "Iterations: " << iterations << endl;
+    // cout << "Accuracy: " << mlp.calculateAccuracy(inputs, targets) * 100 << "%" << endl;
+    // cout << "Loss: " << mlp.calculateLoss(inputs, targets) << endl;
+    // cout << "All outputs correct: " << mlp.allOutputsCorrect(inputs, targets) << endl;
     
     cout << endl;
 

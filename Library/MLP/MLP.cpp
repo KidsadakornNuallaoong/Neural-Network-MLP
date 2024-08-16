@@ -3,8 +3,6 @@
 template <typename T>
 MultiLayerPerceptron<T>::MultiLayerPerceptron()
 {
-    // * Set seed for random
-    srand((unsigned int)time(NULL));
     // * Constructor
     this->layers = vector<vector<Perceptron<T>>>();
 }
@@ -36,8 +34,6 @@ MultiLayerPerceptron<T>::~MultiLayerPerceptron()
 template <typename T>
 void MultiLayerPerceptron<T>::initLayer(const vector<int>& Size)
 {
-    // * Set seed for random
-    srand((unsigned int)time(NULL));
     // * Initialize layers
     for (int i = 0; i < Size.size() - 1; ++i) {
         layers.push_back(vector<Perceptron<T>>());
@@ -97,6 +93,17 @@ void MultiLayerPerceptron<T>::train(const vector<T> &inputs, const vector<T> &ta
 
         errors = newErrors;
     }
+
+    // // * display inputs and outputs
+    // cout << "Inputs: ";
+    // for (int i = 0; i < inputs.size(); ++i) {
+    //     cout << inputs[i] << " ";
+    // }
+    // cout << "Outputs: ";
+    // for (int i = 0; i < outputs.size(); ++i) {
+    //     cout << outputs[i] << " ";
+    // }
+    // cout << endl;
 }
 
 template <typename T>
@@ -229,6 +236,43 @@ void MultiLayerPerceptron<T>::setLayerBias(int layerIndex, const vector<T> &bias
     for (int i = 0; i < layers[layerIndex].size(); ++i) {
         layers[layerIndex][i].setBias(bias[i]);
     }
+}
+
+template <typename T>
+void MultiLayerPerceptron<T>::fitModel(const vector<vector<T>> &inputs, const vector<vector<T>> &targets, const T learningRate)
+{
+    cout << "-->> Fit model <<--" << endl;
+    int iterations = 0;
+    while (!allOutputsCorrect(inputs, targets)) {
+        int index = rand() % inputs.size();
+        train(inputs[index], targets[index], learningRate);
+        iterations++;
+    }
+
+    cout << "-->> Training finished! <<--" << endl;
+    cout << "Epoch: " << iterations << endl;
+    cout << "Accuracy: " << calculateAccuracy(inputs, targets) * 100 << "%" << endl;
+    cout << "Loss: " << calculateLoss(inputs, targets) << endl;
+    cout << "All outputs correct: " << allOutputsCorrect(inputs, targets) << endl << endl;
+}
+
+template <typename T>
+void MultiLayerPerceptron<T>::fitModel(const vector<vector<T>> &inputs, const vector<vector<T>> &targets, const T learningRate, const int epochs)
+{
+    int iterations = 0;
+
+    cout << "Training..." << endl;
+    for (int i = 0; i < epochs; ++i) {
+        int index = rand() % inputs.size();
+        train(inputs[index], targets[index], learningRate);
+        iterations++;
+    }
+
+    cout << "Training finished!" << endl;
+    cout << "Epoch: " << iterations << endl;
+    cout << "Accuracy: " << calculateAccuracy(inputs, targets) * 100 << "%" << endl;
+    cout << "Loss: " << calculateLoss(inputs, targets) << endl;
+    cout << "All outputs correct: " << allOutputsCorrect(inputs, targets) << endl;
 }
 
 template <typename T>

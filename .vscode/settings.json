@@ -5,6 +5,7 @@
         "*.tcc": "cpp",
         "iostream": "cpp",
         "vector": "cpp",
-        "atomic": "cpp"
+        "atomic": "cpp",
+        "cmath": "cpp"
     }
 }

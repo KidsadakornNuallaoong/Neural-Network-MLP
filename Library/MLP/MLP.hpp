@@ -54,6 +54,10 @@ class MultiLayerPerceptron : private Perceptron<T>
         // TODO : setLayerWeights, setLayerBias
         void setLayerWeights(int layerIndex, const vector<vector<T>>& weights);
         void setLayerBias(int layerIndex, const vector<T>& bias);
+        
+        // TODO : fitModel, display
+        void fitModel(const vector<vector<T>>& inputs, const vector<vector<T>>& targets, const T learningRate);
+        void fitModel(const vector<vector<T>>& inputs, const vector<vector<T>>& targets, const T learningRate, const int epochs);
 
         // * Display layers
         void display();
