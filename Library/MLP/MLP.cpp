@@ -220,7 +220,7 @@ void MultiLayerPerceptron<T>::backPropagation(const vector<vector<T>> &inputs, c
         vector<vector<T>> layerOutputs(layers.size() + 1);
         layerOutputs[0] = inputs[i];
 
-        // Forward pass
+        // * Forward pass
         for (size_t j = 0; j < layers.size(); ++j) {
             vector<T> newOutputs;
             for (size_t k = 0; k < layers[j].size(); ++k) {
@@ -229,7 +229,7 @@ void MultiLayerPerceptron<T>::backPropagation(const vector<vector<T>> &inputs, c
             layerOutputs[j + 1] = newOutputs;
         }
 
-        // Compute errors from output layer to input layer
+        // * Compute errors from output layer to input layer
         for (int j = layers.size() - 1; j >= 0; --j) {
             vector<T> layerErrors(layers[j].size());
             if (j == layers.size() - 1) {
@@ -281,6 +281,16 @@ T MultiLayerPerceptron<T>::outputLayerError(const T output, const T target) {
 }
 
 template <typename T>
+void MultiLayerPerceptron<T>::resetWeightsBias()
+{
+    for (int i = 0; i < layers.size(); ++i) {
+        for (int j = 0; j < layers[i].size(); ++j) {
+            layers[i][j].resetWeightsBias();
+        }
+    }
+}
+
+template <typename T>
 void MultiLayerPerceptron<T>::train(const vector<T> &inputs, const vector<T> &targets, const T learningRate)
 {
     vector<vector<T>> layerOutputs;
@@ -290,6 +300,8 @@ void MultiLayerPerceptron<T>::train(const vector<T> &inputs, const vector<T> &ta
     // * Feed Forward
     for (int i = 0; i < layers.size(); ++i) {
         // set typeActivation to linear
+
+        #pragma omp parallel for
         for (int j = 0; j < layers[i].size(); ++j) {
             layers[i][j].typeActivation(activationTypes[i]);
         }
@@ -339,6 +351,9 @@ void MultiLayerPerceptron<T>::train(const vector<vector<T>> &inputs, const vecto
     std::thread inputThread(checkInput);
 
     int iterations = 0;
+    T oldloss = 0;
+    T loss = 0;
+    int lossCount = 0;
 
     while (running) {
         backPropagation(inputs, targets, learningRate);
@@ -346,6 +361,44 @@ void MultiLayerPerceptron<T>::train(const vector<vector<T>> &inputs, const vecto
         if(verbose == true || trainning_display) {
             cout << "Iterations: " << iterations << " Accuracy: " << calculateAccuracy(inputs, targets) * 100 << "%" << " Loss: " << calculateLoss(inputs, targets) << endl;
         }
+
+        // * if loss is less than accuracy then break
+        if (calculateLoss(inputs, targets) < accuracy * accuracy) {
+            // * all outputs correct
+            if (allOutputsCorrect(inputs, targets)) {
+                running = false;
+                break;
+            }
+        }
+
+        // * if loss is nan, inf then break
+        if (isnan(calculateLoss(inputs, targets)) || isinf(calculateLoss(inputs, targets))) {
+            running = false;
+            break;
+        }
+
+        // // * loss is not changing then break
+        // if (iterations > 1) {
+        //     oldloss = loss;
+        //     loss = calculateLoss(inputs, targets);
+        //     if (abs(oldloss - loss) < pow(accuracy, 4)) {
+        //         lossCount++;
+
+        //         if((calculateAccuracy(inputs, targets) * 100) < 75) {
+        //             if (lossCount > 50000){
+        //                 resetWeightsBias();
+        //             }
+        //         } else if ((calculateAccuracy(inputs, targets) * 100) >= 75) {
+        //             if (lossCount > 100000){
+        //                 resetWeightsBias();
+        //             }
+        //         } else {
+        //             lossCount = 0;
+        //         }
+        //     } else {
+        //         lossCount = 0;
+        //     }
+        // }
     }
 
     inputThread.join();
@@ -416,36 +469,36 @@ T MultiLayerPerceptron<T>::activationDerivative(T x, string type)
     }
     
     if (type == "linear") {
-        // Derivative of f(x) = x is 1
+        // * Derivative of f(x) = x is 1
         return 1;
     }
     else if (type == "sigmoid") {
-        // Derivative of f(x) = 1 / (1 + e^(-x)) is f(x) * (1 - f(x))
+        // * Derivative of f(x) = 1 / (1 + e^(-x)) is f(x) * (1 - f(x))
         T sigmoid = 1 / (1 + exp(-x));
         return sigmoid * (1 - sigmoid);
     }
     else if (type == "tanh") {
-        // Derivative of f(x) = tanh(x) is 1 - tanh(x)^2
+        // * Derivative of f(x) = tanh(x) is 1 - tanh(x)^2
         return 1 - tanh(x) * tanh(x);
     }
     else if (type == "relu") {
-        // Derivative of f(x) = max(0, x) is 1 if x > 0 else 0
-        return x > 0 ? 1 : 0;
+        // * Derivative of f(x) = max(0, x) is 1 if x > 0 else 0
+        return x > 0 ? x : 0;
     }
     else if (type == "leakyrelu") {
-        // Derivative of f(x) = max(0.01x, x) is 1 if x > 0 else 0.01
-        return x > 0 ? 1 : 0.01;
+        // * Derivative of f(x) = max(0.01x, x) is 1 if x > 0 else 0.01
+        return x > 0 ? x : x * 0.01;
     }
     else if (type == "softmax") {
-        // Derivative of softmax is complex and involves the full vector
+        // * Derivative of softmax is complex and involves the full vector
         throw invalid_argument("Softmax derivative is not applicable for a single value.");
     }
     else if (type == "step") {
-        // Derivative of f(x) = 1 if x > 0 else 0 is not defined
-        throw invalid_argument("Step function derivative is not defined.");
+        // * Derivative of f(x) = 1 if x > 0 else 0 
+        return x > 0 ? 1 : 0;
     }
     else {
-        // Handle unknown activation type
+        // * Handle unknown activation type
         cerr << "\033[1;31mActivation Type Not Found\033[0m" << endl;
         throw invalid_argument("Activation Type Not Found");
     }
@@ -465,7 +518,6 @@ T MultiLayerPerceptron<T>::calculateAccuracy(const vector<vector<T>> &inputs, co
         }
     }
 
-    // * formula : correct / (input(size) * target(size))
     return (T)correct / (inputs.size() * targets[0].size());
 }
 

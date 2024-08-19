@@ -63,6 +63,15 @@ void Perceptron<T>::setBias(T bias)
 }
 
 template <typename T>
+void Perceptron<T>::resetWeightsBias()
+{
+    for (int i = 0; i < weights.size(); ++i) {
+        weights[i] = ((T)rand() / RAND_MAX) * 2 - 1; // Random values between -1 and 1
+    }
+    bias = ((T)rand() / RAND_MAX) * 2 - 1;
+}
+
+template <typename T>
 vector<T> Perceptron<T>::_weights()
 {
     return vector<T>(this->weights);

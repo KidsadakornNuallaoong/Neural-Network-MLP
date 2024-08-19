@@ -32,6 +32,9 @@ class Perceptron
         void setWeights(const vector<T>& weights);
         void setWeights(const int index, const T weight);
         void setBias(const T bias);
+        
+        void resetWeightsBias();
+
         vector<T> _weights();
         T _bias();
 

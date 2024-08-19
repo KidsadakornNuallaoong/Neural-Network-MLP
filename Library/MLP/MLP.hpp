@@ -56,6 +56,8 @@ class MultiLayerPerceptron : private Perceptron<T>
         T hiddenLayerError(const T output, const T error, const T weight);
         T outputLayerError(const T output, const T target);
 
+        void resetWeightsBias();
+
         // TODO : Calculate accuracy, loss, all_outputs_correct
         T calculateAccuracy(const vector<vector<T>>& inputs, const vector<vector<T>>& targets);
         T calculateLoss(const vector<vector<T>>& inputs, const vector<vector<T>>& targets);
