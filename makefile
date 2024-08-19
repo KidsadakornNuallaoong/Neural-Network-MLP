@@ -16,13 +16,13 @@ ifeq ($(OS), Windows_NT)
 Flags= -fopenmp -lgdi32
 
 build:
-	@(GXX) $(Library_Path)\$(Perceptron_Path)\Perceptron.cpp -o $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o -c
+	@$(GXX) $(Library_Path)\$(Perceptron_Path)\Perceptron.cpp -o $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o -c
 	@echo Build Perceptron compiled successfully!
 
-	@(GXX) $(Library_Path)\$(MLP_Path)\MLP.cpp -o $(Library_Path)\$(MLP_Path)\$(MLPName).o -c
+	@$(GXX) $(Library_Path)\$(MLP_Path)\MLP.cpp -o $(Library_Path)\$(MLP_Path)\$(MLPName).o -c
 	@echo Build Neural Network compiled successfully!
 
-	@(GXX) Test\main.cpp $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o $(Library_Path)\$(MLP_Path)\$(MLPName).o -o $(output) $(Flags)
+	@$(GXX) Test\main.cpp $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o $(Library_Path)\$(MLP_Path)\$(MLPName).o -o $(output)
 	@echo Assembly code successfully!
 
 demo: build
@@ -32,7 +32,7 @@ demo: build
 	@$(MAKE) --no-print-directory clean
 
 run: build
-	@(GXX) main.cpp $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o $(Library_Path)\$(MLP_Path)\$(MLPName).o -o $(output) $(Flags)
+	@$(GXX) main.cpp $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o $(Library_Path)\$(MLP_Path)\$(MLPName).o -o $(output) $(Flags)
 	@$(output)
 
 	@$(MAKE) --no-print-directory clean
@@ -45,22 +45,22 @@ Flags= -fopenmp -Wall -pthread
 LDFLAGS = -pthread
 
 build:
-	@(GXX) ./$(Library_Path)/$(Perceptron_Path)/Perceptron.cpp -o ./$(Library_Path)/$(Perceptron_Path)/$(PerceptronName).o -c
+	@$(GXX) ./$(Library_Path)/$(Perceptron_Path)/Perceptron.cpp -o ./$(Library_Path)/$(Perceptron_Path)/$(PerceptronName).o -c
 	@echo "\033[1;32mBuild Perceptron compiled successfully!\033[0m"
 
-	@(GXX) ./$(Library_Path)/$(MLP_Path)/MLP.cpp -o ./$(Library_Path)/$(MLP_Path)/$(MLPName).o -c
+	@$(GXX) ./$(Library_Path)/$(MLP_Path)/MLP.cpp -o ./$(Library_Path)/$(MLP_Path)/$(MLPName).o -c
 	@echo "\033[1;32mBuild MultiLayerPerceptron compiled successfully!\033[0m"
 
 demo: build
 	@clear
-	@(GXX) ./Test/main.cpp ./$(Library_Path)/$(Perceptron_Path)/$(PerceptronName).o ./$(Library_Path)/$(MLP_Path)/$(MLPName).o -o ./Test/$(output) $(Flags)
+	@$(GXX) ./Test/main.cpp ./$(Library_Path)/$(Perceptron_Path)/$(PerceptronName).o ./$(Library_Path)/$(MLP_Path)/$(MLPName).o -o ./Test/$(output) $(Flags)
 	@echo "\033[1;32mAssembly code successfully!\033[0m"
 	@./Test/$(output)
 
 	@$(MAKE) --no-print-directory clean
 
 run: build
-	@(GXX) main.cpp ./$(Library_Path)/$(Perceptron_Path)/$(PerceptronName).o ./$(Library_Path)/$(MLP_Path)/$(MLPName).o -o $(output) $(LDFLAGS)
+	@$(GXX) main.cpp ./$(Library_Path)/$(Perceptron_Path)/$(PerceptronName).o ./$(Library_Path)/$(MLP_Path)/$(MLPName).o -o $(output) $(LDFLAGS)
 	@./$(output)
 
 	@$(MAKE) --no-print-directory clean

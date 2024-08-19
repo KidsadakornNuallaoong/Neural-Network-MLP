@@ -1,5 +1,84 @@
 #include "MLP.hpp"
 
+#ifdef _WIN32
+    #include <thread>
+    #include <conio.h> // For _kbhit and _getch
+    
+    bool running = true;
+    bool trainning_display = false;
+
+    void checkInput() {
+        while (running) {
+            if (_kbhit()) {
+                char ch = _getch();
+                if (ch == 'q' || ch == 'Q') {
+                    running = false;
+                }
+
+                if (ch == 'd' || ch == 'D') {
+                    trainning_display = !trainning_display;
+                }
+            }
+        }
+    }
+
+#elif __linux__
+    #include <thread>
+    #include <atomic>
+    #include <unistd.h>
+    #include <fcntl.h>
+    #include <termios.h>
+
+    std::atomic<bool> running(true);
+    std::atomic<bool> trainning_display(false);
+
+    bool kbhit() {
+        struct termios oldt, newt;
+        int ch;
+        int oldf;
+
+        // Get the current terminal settings
+        tcgetattr(STDIN_FILENO, &oldt);
+        newt = oldt;
+        // Disable canonical mode and echo
+        newt.c_lflag &= ~(ICANON | ECHO);
+        tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+        // Set stdin to non-blocking mode
+        oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+        fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+
+        // Check for input
+        ch = getchar();
+
+        // Restore terminal settings
+        tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+        fcntl(STDIN_FILENO, F_SETFL, oldf);
+
+        if(ch != EOF) {
+            ungetc(ch, stdin);
+            return true;
+        }
+
+        return false;
+    }
+
+    void checkInput() {
+        while (running) {
+            if (kbhit()) {
+                char ch = getchar();
+                if (ch == 'q' || ch == 'Q') {
+                    running = false;
+                }
+
+                if (ch == 'd' || ch == 'D') {
+                    trainning_display = !trainning_display;
+                }
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Small delay to avoid high CPU usage
+        }
+    }
+#endif
+
 template <typename T>
 MultiLayerPerceptron<T>::MultiLayerPerceptron()
 {
@@ -59,72 +138,15 @@ vector<T> MultiLayerPerceptron<T>::feedForward(const vector<T> &inputs)
     return outputs;
 }
 
-// template <typename T>
-// void MultiLayerPerceptron<T>::backPropagation(const vector<vector<T>> &inputs, const vector<vector<T>> &targets, const T learningRate)
-// {
-//     for (int i = 0; i < inputs.size(); ++i) {
-//         vector<vector<T>> outputs;
-//         vector<vector<T>> errors(layers.size());
-//         vector<vector<T>> biases(layers.size());
-
-//         // * feed forward
-//         outputs.push_back(inputs[i]);
-//         for (int j = 0; j < layers.size(); ++j) {
-//             vector<T> newOutputs;
-//             for (int k = 0; k < layers[j].size(); ++k) {
-//                 layers[j][k].typeActivation(activationTypes[j]);
-//                 newOutputs.push_back(layers[j][k].feedForward(outputs.back()));
-//             }
-//             outputs.push_back(newOutputs);
-//         }
-
-//         // * calculate error (start from output layer and move backwards)
-//         for (int j = layers.size() - 1; j >= 0; --j) {
-//             vector<T> newErrors;
-//             if (j == layers.size() - 1) {  // output layer
-//                 for (int k = 0; k < layers[j].size(); ++k) {
-//                     newErrors.push_back(outputLayerError(outputs[j + 1][k], targets[i][k]));
-//                 }
-//             } else {  // hidden layers
-//                 for (int k = 0; k < layers[j].size(); ++k) {
-//                     T error = 0.0;
-//                     for (int l = 0; l < layers[j + 1].size(); ++l) {
-//                         // * use output error for hidden layer
-//                         error += hiddenLayerError(outputs[j + 1][l], errors[j + 1][l], layers[j + 1][l].getWeights()[k]);
-//                     }
-//                     newErrors.push_back(error);
-//                 }
-//             }
-//             errors[j] = newErrors;
-//         }
-
-//         // // * display errors
-//         // for (int j = 0; j < errors.size(); ++j) {
-//         //     cout << "Layer " << j << " errors: ";
-//         //     for (int k = 0; k < errors[j].size(); ++k) {
-//         //         cout << errors[j][k] << " ";
-//         //     }
-//         //     cout << endl;
-//         // }
-
-//         // * update weights and bias
-//         for (int j = layers.size() - 1; j >= 0; --j) {
-//             for (int k = 0; k < layers[j].size(); ++k) {
-//                 // cout << "Layer " << j << " Node " << k << endl;
-//                 for (int l = 0; l < layers[j][k].getWeights().size(); ++l) {
-//                     layers[j][k].setWeights(l, updateWeights(layers[j][k].getWeights()[l], learningRate, errors[j][k], outputs[j][l]));
-//                     layers[j][k].setBias(updateBias(layers[j][k].getBias(), learningRate, errors[j][k]));
-//                 }
-//             }
-//         }
-//     }
-// }
-
+/*
 template <typename T>
 void MultiLayerPerceptron<T>::backPropagation(const vector<vector<T>> &inputs, const vector<vector<T>> &targets, const T learningRate)
 {
     for (int i = 0; i < inputs.size(); ++i) {
         vector<vector<T>> outputs;
+        vector<vector<T>> errors(layers.size());
+        vector<vector<T>> biases(layers.size());
+
         // * feed forward
         outputs.push_back(inputs[i]);
         for (int j = 0; j < layers.size(); ++j) {
@@ -138,26 +160,101 @@ void MultiLayerPerceptron<T>::backPropagation(const vector<vector<T>> &inputs, c
 
         // * calculate error (start from output layer and move backwards)
         for (int j = layers.size() - 1; j >= 0; --j) {
-            vector<T> newErrors(layers[j].size(), 0);
-            for (int k = 0; k < layers[j].size(); ++k) {
-                T error = 0.0;
-                if (j == layers.size() - 1) {  // output layer
-                    error = outputLayerError(outputs[j + 1][k], targets[i][k]);
-                } else {  // hidden layers
+            vector<T> newErrors;
+            if (j == layers.size() - 1) {  // output layer
+                for (int k = 0; k < layers[j].size(); ++k) {
+                    newErrors.push_back(outputLayerError(outputs[j + 1][k], targets[i][k]));
+                }
+            } else {  // hidden layers
+                for (int k = 0; k < layers[j].size(); ++k) {
+                    T error = 0.0;
                     for (int l = 0; l < layers[j + 1].size(); ++l) {
                         // * use output error for hidden layer
-                        error += hiddenLayerError(outputs[j + 1][l], newErrors[l], layers[j + 1][l].getWeights()[k]);
+                        error += hiddenLayerError(outputs[j + 1][l], errors[j + 1][l], layers[j + 1][l].getWeights()[k]);
                     }
+                    newErrors.push_back(error);
                 }
-                newErrors[k] = error;
             }
+            errors[j] = newErrors;
+        }
 
-            // * update weights and bias
+        // // * display errors
+        // for (int j = 0; j < errors.size(); ++j) {
+        //     cout << "Layer " << j << " errors: ";
+        //     for (int k = 0; k < errors[j].size(); ++k) {
+        //         cout << errors[j][k] << " ";
+        //     }
+        //     cout << endl;
+        // }
+
+        // * update weights and bias
+        for (int j = layers.size() - 1; j >= 0; --j) {
             for (int k = 0; k < layers[j].size(); ++k) {
+                // cout << "Layer " << j << " Node " << k << endl;
                 for (int l = 0; l < layers[j][k].getWeights().size(); ++l) {
-                    layers[j][k].setWeights(l, updateWeights(layers[j][k].getWeights()[l], learningRate, newErrors[k], outputs[j][l]));
+                    layers[j][k].setWeights(l, updateWeights(layers[j][k].getWeights()[l], learningRate, errors[j][k], outputs[j][l]));
+                    layers[j][k].setBias(updateBias(layers[j][k].getBias(), learningRate, errors[j][k]));
                 }
-                layers[j][k].setBias(updateBias(layers[j][k].getBias(), learningRate, newErrors[k]));
+            }
+        }
+    }
+}
+*/
+
+template <typename T>
+void MultiLayerPerceptron<T>::backPropagation(const vector<vector<T>> &inputs, const vector<vector<T>> &targets, const T learningRate)
+{
+    if (inputs.size() != targets.size()) {
+        throw std::invalid_argument("Inputs and targets must have the same size.");
+    }
+
+    for (size_t i = 0; i < inputs.size(); ++i) {
+        vector<T> output = feedForward(inputs[i]);
+
+        vector<T> outputError(targets[i].size());
+        for (size_t j = 0; j < targets[i].size(); ++j) {
+            outputError[j] = targets[i][j] - output[j];
+        }
+
+        vector<vector<T>> errors(layers.size());
+        vector<vector<T>> layerOutputs(layers.size() + 1);
+        layerOutputs[0] = inputs[i];
+
+        // Forward pass
+        for (size_t j = 0; j < layers.size(); ++j) {
+            vector<T> newOutputs;
+            for (size_t k = 0; k < layers[j].size(); ++k) {
+                newOutputs.push_back(layers[j][k].feedForward(layerOutputs[j]));
+            }
+            layerOutputs[j + 1] = newOutputs;
+        }
+
+        // Compute errors from output layer to input layer
+        for (int j = layers.size() - 1; j >= 0; --j) {
+            vector<T> layerErrors(layers[j].size());
+            if (j == layers.size() - 1) {
+                for (size_t k = 0; k < layers[j].size(); ++k) {
+                    layerErrors[k] = outputLayerError(layerOutputs[j + 1][k], targets[i][k]);
+                }
+            } else {
+                for (size_t k = 0; k < layers[j].size(); ++k) {
+                    T error = 0;
+                    for (size_t l = 0; l < layers[j + 1].size(); ++l) {
+                        error += hiddenLayerError(layerOutputs[j + 1][l], errors[j + 1][l], layers[j + 1][l].getWeights()[k]);
+                    }
+                    layerErrors[k] = error;
+                }
+            }
+            errors[j] = layerErrors;
+        }
+
+        // Update weights and biases
+        for (int j = layers.size() - 1; j >= 0; --j) {
+            for (size_t k = 0; k < layers[j].size(); ++k) {
+                for (size_t l = 0; l < layers[j][k].getWeights().size(); ++l) {
+                    layers[j][k].setWeights(l, updateWeights(layers[j][k].getWeights()[l], learningRate, errors[j][k], layerOutputs[j][l]));
+                }
+                layers[j][k].setBias(updateBias(layers[j][k].getBias(), learningRate, errors[j][k]));
             }
         }
     }
@@ -192,6 +289,10 @@ void MultiLayerPerceptron<T>::train(const vector<T> &inputs, const vector<T> &ta
 
     // * Feed Forward
     for (int i = 0; i < layers.size(); ++i) {
+        // set typeActivation to linear
+        for (int j = 0; j < layers[i].size(); ++j) {
+            layers[i][j].typeActivation(activationTypes[i]);
+        }
         outputs = feedForward(outputs);
         layerOutputs.push_back(outputs);
     }
@@ -233,6 +334,54 @@ void MultiLayerPerceptron<T>::train(const vector<T> &inputs, const vector<T> &ta
 }
 
 template <typename T>
+void MultiLayerPerceptron<T>::train(const vector<vector<T>> &inputs, const vector<vector<T>> &targets, const T learningRate, const bool verbose)
+{
+    std::thread inputThread(checkInput);
+
+    int iterations = 0;
+
+    while (running) {
+        backPropagation(inputs, targets, learningRate);
+        iterations++;
+        if(verbose == true || trainning_display) {
+            cout << "Iterations: " << iterations << " Accuracy: " << calculateAccuracy(inputs, targets) * 100 << "%" << " Loss: " << calculateLoss(inputs, targets) << endl;
+        }
+    }
+
+    inputThread.join();
+
+    // * report trainning
+    cout << endl;
+    cout << "Training finished!" << endl;
+    cout << "Iterations: " << iterations << endl;
+    cout << "Accuracy: " << calculateAccuracy(inputs, targets) * 100 << "%" << endl;
+    cout << "Loss: " << calculateLoss(inputs, targets) << endl;
+    cout << "All outputs correct: " << allOutputsCorrect(inputs, targets) << endl;
+    cout << endl;
+}
+
+template <typename T>
+void MultiLayerPerceptron<T>::train(const vector<vector<T>> &inputs, const vector<vector<T>> &targets, const T learningRate, const int iterations, const bool verbose)
+{   
+    // * Start train
+    for (int i = 0; i < iterations; ++i) {
+        backPropagation(inputs, targets, learningRate);
+        if(verbose == true || trainning_display) {
+            cout << "Iterations: " << iterations << " Accuracy: " << calculateAccuracy(inputs, targets) * 100 << "%" << " Loss: " << calculateLoss(inputs, targets) << endl;
+        }
+    }
+
+    // * report trainning
+    cout << endl;
+    cout << "Training finished!" << endl;
+    cout << "Iterations: " << iterations << endl;
+    cout << "Accuracy: " << calculateAccuracy(inputs, targets) * 100 << "%" << endl;
+    cout << "Loss: " << calculateLoss(inputs, targets) << endl;
+    cout << "All outputs correct: " << allOutputsCorrect(inputs, targets) << endl;
+    cout << endl;
+}
+
+template <typename T>
 void MultiLayerPerceptron<T>::typeDeActivation(string type)
 {
     // * change type to lower case
@@ -266,43 +415,39 @@ T MultiLayerPerceptron<T>::activationDerivative(T x, string type)
         type[i] = tolower(type[i]);
     }
     
-    if (type == "linear")
-    {
-        // * f(x) = x
+    if (type == "linear") {
+        // Derivative of f(x) = x is 1
         return 1;
     }
-    else if (type == "sigmoid")
-    {
-        // * f(x) = 1 / (1 + e^(-x))
-        return x * (1 - x);
+    else if (type == "sigmoid") {
+        // Derivative of f(x) = 1 / (1 + e^(-x)) is f(x) * (1 - f(x))
+        T sigmoid = 1 / (1 + exp(-x));
+        return sigmoid * (1 - sigmoid);
     }
-    else if (type == "tanh")
-    {
-        // * f(x) = tanh(x)
-        return 1 - x * x;
+    else if (type == "tanh") {
+        // Derivative of f(x) = tanh(x) is 1 - tanh(x)^2
+        return 1 - tanh(x) * tanh(x);
     }
-    else if (type == "relu")
-    {
-        // * f(x) = max(0, x)
+    else if (type == "relu") {
+        // Derivative of f(x) = max(0, x) is 1 if x > 0 else 0
         return x > 0 ? 1 : 0;
     }
-    else if (type == "leakyrelu")
-    {
-        // * f(x) = max(0.01x, x)
+    else if (type == "leakyrelu") {
+        // Derivative of f(x) = max(0.01x, x) is 1 if x > 0 else 0.01
         return x > 0 ? 1 : 0.01;
     }
-    else if (type == "softmax")
-    {
-        // * f(x) = e^x / sum(e^x)
-        return x * (1 - x);
+    else if (type == "softmax") {
+        // Derivative of softmax is complex and involves the full vector
+        throw invalid_argument("Softmax derivative is not applicable for a single value.");
     }
-    else if (type == "step")
-    {
-        // * f(x) = 1 if x > 0 else 0
-        return x > 0 ? 1 : 0;
-    }else{
+    else if (type == "step") {
+        // Derivative of f(x) = 1 if x > 0 else 0 is not defined
+        throw invalid_argument("Step function derivative is not defined.");
+    }
+    else {
+        // Handle unknown activation type
         cerr << "\033[1;31mActivation Type Not Found\033[0m" << endl;
-        return 0;
+        throw invalid_argument("Activation Type Not Found");
     }
 }
 
@@ -367,18 +512,36 @@ void MultiLayerPerceptron<T>::setActivation(const vector<string> &activationType
 }
 
 template <typename T>
-void MultiLayerPerceptron<T>::setLayerWeights(int layerIndex, const vector<vector<T>> &weights)
-{
-    for (int i = 0; i < layers[layerIndex].size(); ++i) {
+void MultiLayerPerceptron<T>::setLayerWeights(int layerIndex, const vector<vector<T>> &weights) {
+    if (layerIndex < 0 || layerIndex >= layers.size()) {
+        throw std::out_of_range("Layer index out of range");
+    }
+
+    if (weights.size() != layers[layerIndex].size()) {
+        throw std::invalid_argument("Number of nodes in weights does not match layer size");
+    }
+
+    for (int i = 0; i < weights.size(); ++i) {
+        if (weights[i].size() != layers[layerIndex][i].getWeights().size()) {
+            throw std::invalid_argument("Weights size does not match number of inputs in the layer");
+        }
+
         layers[layerIndex][i].setWeights(weights[i]);
     }
 }
 
 template <typename T>
-void MultiLayerPerceptron<T>::setLayerBias(int layerIndex, const vector<T> &bias)
-{
-    for (int i = 0; i < layers[layerIndex].size(); ++i) {
-        layers[layerIndex][i].setBias(bias[i]);
+void MultiLayerPerceptron<T>::setLayerBias(int layerIndex, const vector<T> &biases) {
+    if (layerIndex < 0 || layerIndex >= layers.size()) {
+        throw std::out_of_range("Layer index out of range");
+    }
+
+    if (biases.size() != layers[layerIndex].size()) {
+        throw std::invalid_argument("Number of biases does not match layer size");
+    }
+
+    for (int i = 0; i < biases.size(); ++i) {
+        layers[layerIndex][i].setBias(biases[i]);
     }
 }
 
