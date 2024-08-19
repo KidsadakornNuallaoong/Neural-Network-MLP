@@ -51,6 +51,12 @@ void Perceptron<T>::setWeights(const vector<T>& weights) {
 }
 
 template <typename T>
+void Perceptron<T>::setWeights(const int index, const T weights)
+{
+    this->weights[index] = weights;
+}
+
+template <typename T>
 void Perceptron<T>::setBias(T bias)
 {
     this->bias = T(bias);
@@ -173,6 +179,18 @@ void Perceptron<T>::train(const vector<T>& inputs, T target , const T learningRa
     }
     bias += error * learningRate;
     cout << endl;
+}
+
+template <typename T>
+vector<T> Perceptron<T>::getWeights()
+{
+    return vector<T>(this->weights);
+}
+
+template <typename T>
+T Perceptron<T>::getBias()
+{
+    return T(this->bias);
 }
 
 template <typename T>

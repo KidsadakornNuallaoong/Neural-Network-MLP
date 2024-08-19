@@ -20,7 +20,7 @@ class Perceptron
         T bias = 1;
         T output = 0;
 
-        string activationType = "sigmoid";
+        string activationType = "linear";
 
     public:
         Perceptron();
@@ -30,7 +30,8 @@ class Perceptron
         void init(int inputSize);
 
         void setWeights(const vector<T>& weights);
-        void setBias(T bias);
+        void setWeights(const int index, const T weight);
+        void setBias(const T bias);
         vector<T> _weights();
         T _bias();
 
@@ -42,6 +43,8 @@ class Perceptron
 
         void train(const vector<T>& inputs,const T target, const T learningRate);
 
+        vector<T> getWeights();
+        T getBias();
         T getOutput();
 
         Perceptron<T> cpyEnv() const;
