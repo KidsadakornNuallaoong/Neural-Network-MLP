@@ -43,7 +43,7 @@ class MultiLayerPerceptron : private Perceptron<T>
         // TODO : feedForward, train, display
         vector<T> feedForward(const vector<T>& inputs);
         void backPropagation(const vector<vector<T>>& inputs, const vector<vector<T>>& targets, const T learningRate);
-        void train(const vector<T> &inputs, const vector<T> &targets, const T learningRate);
+        void backPropagation_indexRandom(const vector<vector<T>>& inputs, const vector<vector<T>>& targets, const T learningRate);
         void train(const vector<vector<T>> &inputs, const vector<vector<T>> &targets, const T learningRate, const bool verbose = false);
         void train(const vector<vector<T>> &inputs, const vector<vector<T>> &targets, const T learningRate, const int iterations, const bool verbose = false);
 
