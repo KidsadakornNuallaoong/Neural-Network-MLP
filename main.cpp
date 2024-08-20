@@ -5,86 +5,89 @@
 #include <ctime>
 #include <omp.h>
 
-#include "./Library/MLP/MLP.hpp"
-
 using namespace std;
 
+// #include "../Library/Perceptron/Perceptron.hpp"
+#include "./Library/MLP/MLP.hpp"
+
 int main() {
-    srand((unsigned int)time(NULL));
 
     // * Test Multi-Layer Perceptron
-    vector<int> layersSize = {2, 3, 1};
+    vector<int> layersSize = {2, 8, 8, 1};
     MultiLayerPerceptron<double> mlp(layersSize);
-    
+
     // * XOR Problem
     vector<vector<double>> inputs = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
     vector<vector<double>> targets = {{0}, {1}, {1}, {0}};
-    // mlp.setLayerWeights(0, {{31.3322, -2.01753}, {0.5, 0.5}, {-276.281, 7.45239}});
-    // mlp.setLayerBias(0, {-30.1578, 0.5, -2.38014});
-    // mlp.setLayerWeights(1, {{2.29117, 0.5, 5.90903}});
-    // mlp.setLayerBias(1, {-2.60602});
-    
-    mlp.setLayerWeights(0, {{0.5, 0.5}, {0.5, 0.5}, {0.5, 0.5}});
-    mlp.setLayerBias(0, {0.5, 0.5, 0.5});
-    mlp.setLayerWeights(1, {{0.5, 0.5, 0.5}});
-    mlp.setLayerBias(1, {0.5});
+
+    // vector<vector<double>> inputs = {{1, 2}, {3, 4}, {5, 6}, {7, 8}};
+    // vector<vector<double>> targets = {{0.3}, {0.5}, {0.7}, {0.9}};
+
+    // mlp.setLayerWeights(0, {{0.1, 0.2}, {0.3, 0.4}, {0.5, 0.6}});
+    // mlp.setLayerWeights(1, {{0.7, 0.8, 0.9}});
+    // mlp.setLayerBias(0, {0.1, 0.2, 0.3});
+    // mlp.setLayerBias(1, {0.4});
+    mlp.setActivation({"sigmoid", "sigmoid", "sigmoid"});
+    mlp.setAccuracy(0.001);
     mlp.display();
-    
-    for(const auto& input : inputs) {
-        cout << "Input: ";
-        for(const auto& i : input) {
-            cout << i << " ";
-        }
-        cout << "Output: " << round(mlp.feedForward(input)[0]) << endl;
-    }
 
     double learningRate = 0.1;
     int iterations = 0;
 
-    // cout << "Training..." << endl;
-    // while (!mlp.allOutputsCorrect(inputs, targets)) {
-    //     int index = rand() % inputs.size();
-    //     mlp.train(inputs[index], targets[index], learningRate);
-    //     iterations++;
-    // }
-
-    mlp.fitModel(inputs, targets, learningRate);
-
-
-    // cout << "Training finished!" << endl;
-    // cout << "Iterations: " << iterations << endl;
-    // cout << "Accuracy: " << mlp.calculateAccuracy(inputs, targets) * 100 << "%" << endl;
-    // cout << "Loss: " << mlp.calculateLoss(inputs, targets) << endl;
-    // cout << "All outputs correct: " << mlp.allOutputsCorrect(inputs, targets) << endl;
-    
-    cout << endl;
-
-    cout << "Predictions:" << endl;
-    mlp.display();
-    for(const auto& input : inputs) {
+    cout << "Initial outputs:" << endl;
+    for (const auto& input : inputs) {
         cout << "Input: ";
-        for(const auto& i : input) {
+        for (const auto& i : input) {
+            cout << i << " ";
+        }
+        cout << "Output: " << mlp.feedForward(input)[0] << endl;
+    }
+
+    cout << "Training..." << endl;
+
+    mlp.train(inputs, targets, learningRate);
+
+    // mlp.setActivation({"relu", "step"});
+    mlp.display();
+    for (const auto& input : inputs) {
+        cout << "Input: ";
+        for (const auto& i : input) {
+            cout << i << " ";
+        }
+        cout << "Output: " << mlp.feedForward(input)[0] << endl;
+    }
+
+    // mlp.resetWeightsBias();
+    mlp.display();
+
+    cout << "Initial outputs:" << endl;
+    for (const auto& input : inputs) {
+        cout << "Input: ";
+        for (const auto& i : input) {
             cout << i << " ";
         }
         cout << "Output: " << round(mlp.feedForward(input)[0]) << endl;
     }
 
+    // // mlp.display();
+    // mlp.export_to_json("mlp.json");
 
-    cout << endl;
+    // vector<int> layersSize = {2, 8, 8, 1};
+    // MultiLayerPerceptron<double> mlp2(layersSize);
+    // mlp2.setActivation({"relu", "relu", "sigmoid"});
+    // mlp2.setAccuracy(0.1);
+    // // mlp2.display();
+    // mlp2.import_from_json("mlp.json");
 
-    // * Clone Multi-Layer Perceptron
-    cout << "Cloning Multi-Layer Perceptron..." << endl;
-    
-    mlp.display();
-    
-    MultiLayerPerceptron<double> mlp2 = mlp.clone();
-    for(const auto& input : inputs) {
-        cout << "Input: ";
-        for(const auto& i : input) {
-            cout << i << " ";
-        }
-        cout << "Output: " << round(mlp2.feedForward(input)[0]) << endl;
-    }
+    // cout << "Initial outputs:" << endl;
+    // vector<vector<double>> inputs = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+    // for (const auto& input : inputs) {
+    //     cout << "Input: ";
+    //     for (const auto& i : input) {
+    //         cout << i << " ";
+    //     }
+    //     cout << "Output: " << mlp2.feedForward(input)[0] << endl;
+    // }
 
     return 0;
 }

@@ -51,9 +51,24 @@ void Perceptron<T>::setWeights(const vector<T>& weights) {
 }
 
 template <typename T>
+void Perceptron<T>::setWeights(const int index, const T weights)
+{
+    this->weights[index] = weights;
+}
+
+template <typename T>
 void Perceptron<T>::setBias(T bias)
 {
     this->bias = T(bias);
+}
+
+template <typename T>
+void Perceptron<T>::resetWeightsBias()
+{
+    for (int i = 0; i < weights.size(); ++i) {
+        weights[i] = ((T)rand() / RAND_MAX) * 2 - 1; // Random values between -1 and 1
+    }
+    bias = ((T)rand() / RAND_MAX) * 2 - 1;
 }
 
 template <typename T>
@@ -93,49 +108,25 @@ void Perceptron<T>::typeActivation(string type)
 }
 
 template <typename T>
-T Perceptron<T>::activation(T x)
-{
-    if (activationType == "linear")
-    {
-        // * f(x) = x
+T Perceptron<T>::activation(T x) {
+    if (activationType == "linear") {
         return x;
-    }
-    else if (activationType == "sigmoid")
-    {
-        // * f(x) = 1 / (1 + e^(-x))
+    } else if (activationType == "sigmoid") {
         return 1 / (1 + exp(-x));
-    }
-    else if (activationType == "tanh")
-    {
-        // * f(x) = tanh(x)
+    } else if (activationType == "tanh") {
         return tanh(x);
-    }
-    else if (activationType == "relu")
-    {
-        // * f(x) = max(0,x)
-        (x>0)?x:x=0;
-        return x;
-    }
-    else if (activationType == "leakyrelu")
-    {
-        // * f(x) = max(0.01*x,x)
-        (x>0)?x:x=0.01*x;
-        return x;
-    }
-    else if (activationType == "softmax")
-    {
-        // * f(x) = e^x / ∑(e^x)
-        return exp(x) / exp(x);
-    }
-    else if(activationType == "step")
-    {
-        // * f(x) = 1 if x > 0 else 0
-        return (x>0)?1:0;
-    }
-    else
-    {
-        // ! warning if activation type not found
-        cout << "\033[1;31mActivation Type Not Found\033[0m" << endl;
+    } else if (activationType == "relu") {
+        return (x > 0) ? x : 0;
+    } else if (activationType == "leakyrelu") {
+        return (x > 0) ? x : 0.01 * x;
+    } else if (activationType == "softmax") {
+        // Softmax is typically computed over a vector, not a scalar.
+        cerr << "\033[1;31mSoftmax must be computed over a vector, not a scalar.\033[0m" << endl;
+        return x; // Return the value as-is for compatibility.
+    } else if (activationType == "step") {
+        return (x > 0) ? 1 : 0;
+    } else {
+        cerr << "\033[1;31mActivation Type Not Found\033[0m" << endl;
         return 0;
     }
 }
@@ -165,14 +156,24 @@ T Perceptron<T>::feedForward(const vector<T>& inputs, T bias)
 }
 
 template <typename T>
-void Perceptron<T>::train(const vector<T>& inputs, T target , const T learningRate)
-{
+void Perceptron<T>::train(const vector<T>& inputs, T target, const T learningRate) {
     T error = target - feedForward(inputs);
     for (int i = 0; i < weights.size(); ++i) {
-        weights[i] += error * inputs[i] * learningRate;
+        weights[i] += learningRate * error * inputs[i];
     }
-    bias += error * learningRate;
-    cout << endl;
+    bias += learningRate * error;
+}
+
+template <typename T>
+vector<T> Perceptron<T>::getWeights()
+{
+    return vector<T>(this->weights);
+}
+
+template <typename T>
+T Perceptron<T>::getBias()
+{
+    return T(this->bias);
 }
 
 template <typename T>

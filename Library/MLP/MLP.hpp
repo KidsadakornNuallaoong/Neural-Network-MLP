@@ -23,8 +23,9 @@ class MultiLayerPerceptron : private Perceptron<T>
     private:
         // * Perceptron layers in vector
         vector<vector<Perceptron<T>>> layers;
+        vector<string> activationTypes = {"sigmoid"};
 
-        string activationType = "sigmoid";
+        T accuracy = 0.01;
 
     public:
         // * Constructor
@@ -41,23 +42,40 @@ class MultiLayerPerceptron : private Perceptron<T>
 
         // TODO : feedForward, train, display
         vector<T> feedForward(const vector<T>& inputs);
-        void train(const vector<T>& inputs, const vector<T>& targets, const T learningRate);
+        void backPropagation(const vector<vector<T>>& inputs, const vector<vector<T>>& targets, const T learningRate);
+        void backPropagation_indexRandom(const vector<vector<T>>& inputs, const vector<vector<T>>& targets, const T learningRate);
+        void train(const vector<vector<T>> &inputs, const vector<vector<T>> &targets, const T learningRate, const bool verbose = false);
+        void train(const vector<vector<T>> &inputs, const vector<vector<T>> &targets, const T learningRate, const int iterations, const bool verbose = false);
 
         void typeDeActivation(string type);
-        T activationDerivative(T x);
+        T activationDerivative(T x, string type);
+
+        // TODO : update weights, update bias, hiddenLayerError, outputLayerError
+        T updateWeights(const T weight, const T learningRate, const T error, const T output);
+        T updateBias(const T bias, const T learningRate, const T error);
+        T hiddenLayerError(const T output, const T error, const T weight);
+        T outputLayerError(const T output, const T target);
+
+        void resetWeightsBias();
 
         // TODO : Calculate accuracy, loss, all_outputs_correct
         T calculateAccuracy(const vector<vector<T>>& inputs, const vector<vector<T>>& targets);
         T calculateLoss(const vector<vector<T>>& inputs, const vector<vector<T>>& targets);
         bool allOutputsCorrect(const vector<vector<T>>& inputs, const vector<vector<T>>& targets);
         
-        // TODO : setLayerWeights, setLayerBias
+        // TODO : setActivation, setLayerWeights, setLayerBias, setAccuracy
+        void setActivation(const vector<string>& activationTypes);
         void setLayerWeights(int layerIndex, const vector<vector<T>>& weights);
         void setLayerBias(int layerIndex, const vector<T>& bias);
-        
-        // TODO : fitModel, display
-        void fitModel(const vector<vector<T>>& inputs, const vector<vector<T>>& targets, const T learningRate);
-        void fitModel(const vector<vector<T>>& inputs, const vector<vector<T>>& targets, const T learningRate, const int epochs);
+        void setAccuracy(T accuracy);
+
+        // TODO : exportWeights, exportBias to JSON, CSV, etc.
+        void export_to_json(const string& filename);
+        void export_to_csv(const string& filename);
+
+        // TODO : importWeights, importBias from JSON, CSV, etc.
+        void import_from_json(const string &filename);
+        void import_from_csv(const string &filename);
 
         // * Display layers
         void display();
