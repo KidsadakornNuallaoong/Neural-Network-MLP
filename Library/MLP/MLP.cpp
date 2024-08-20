@@ -597,7 +597,12 @@ bool MultiLayerPerceptron<T>::allOutputsCorrect(const vector<vector<T>> &inputs,
 
 template <typename T>
 void MultiLayerPerceptron<T>::setActivation(const vector<string> &activationTypes)
-{
+{ 
+    // * check oversize or undersize
+    if (activationTypes.size() > layers.size() || activationTypes.size() < layers.size()) {
+        throw std::invalid_argument("Number of activation types does not match number of layers");
+    }
+
     this->activationTypes = activationTypes;
     for (int i = 0; i < layers.size(); ++i) {
         for (int j = 0; j < layers[i].size(); ++j) {
@@ -644,6 +649,80 @@ template <typename T>
 void MultiLayerPerceptron<T>::setAccuracy(T accuracy)
 {
     this->accuracy = accuracy;
+}
+
+template <typename T>
+vector<T> MultiLayerPerceptron<T>::predict(const vector<T> &inputs, const rod r)
+{
+    // * display input and output
+    if (r == DISPLAY || r == R_D) {
+        cout << "Input: ";
+        for (int i = 0; i < inputs.size(); ++i) {
+            cout << inputs[i] << " ";
+        }
+        cout << "Output: ";
+        for (int i = 0; i < feedForward(inputs).size(); ++i) {
+            if (r == ROUND || r == R_D) {
+                cout << round(feedForward(inputs)[i]) << " ";
+            } else {
+                cout << feedForward(inputs)[i] << " ";
+            }
+        }
+        cout << endl;
+    }
+
+    if (r == ROUND || r == R_D) {
+        vector<T> outputs;
+        for (int i = 0; i < inputs.size(); ++i) {
+            outputs.push_back(round(feedForward(inputs)[i]));
+        }
+        return outputs;
+    } else {
+        return feedForward(inputs);
+    }
+}
+
+template <typename T>
+vector<vector<T>> MultiLayerPerceptron<T>::predict(const vector<vector<T>> &inputs, const rod r)
+{
+    vector<vector<T>> outputs;
+    for (int i = 0; i < inputs.size(); ++i) {
+        outputs.push_back(feedForward(inputs[i]));
+    }
+
+    // * display input and output
+    if (r == DISPLAY || r == R_D) {
+        for (int i = 0; i < inputs.size(); ++i) {
+            cout << "Input: ";
+            for (int j = 0; j < inputs[i].size(); ++j) {
+                cout << inputs[i][j] << " ";
+            }
+            cout << "Output: ";
+            for (int j = 0; j < outputs[i].size(); ++j) {
+                if (r == ROUND || r == R_D) {
+                    cout << round(outputs[i][j]) << " ";
+                } else {
+                    cout << outputs[i][j] << " ";
+                }
+            }
+            cout << endl;
+        }
+    }
+
+
+    if (r == ROUND || r == R_D) {
+        vector<vector<T>> roundedOutputs;
+        for (int i = 0; i < outputs.size(); ++i) {
+            vector<T> roundedOutput;
+            for (int j = 0; j < outputs[i].size(); ++j) {
+                roundedOutput.push_back(round(outputs[i][j]));
+            }
+            roundedOutputs.push_back(roundedOutput);
+        }
+        return roundedOutputs;
+    } else {
+        return outputs;
+    }
 }
 
 template <typename T>

@@ -17,6 +17,9 @@
 
 using namespace std;
 
+// * enum : round display
+enum rod {ROUND, DISPLAY, R_D , NONE};
+
 template <typename T>
 class MultiLayerPerceptron : private Perceptron<T>
 {
@@ -68,6 +71,10 @@ class MultiLayerPerceptron : private Perceptron<T>
         void setLayerWeights(int layerIndex, const vector<vector<T>>& weights);
         void setLayerBias(int layerIndex, const vector<T>& bias);
         void setAccuracy(T accuracy);
+
+        // TODO : predict
+        vector<T> predict(const vector<T>& inputs, const rod rd = NONE);
+        vector<vector<T>> predict(const vector<vector<T>>& inputs, const rod rd = NONE);
 
         // TODO : exportWeights, exportBias to JSON, CSV, etc.
         void export_to_json(const string& filename);
