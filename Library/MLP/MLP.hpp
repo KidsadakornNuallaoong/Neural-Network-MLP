@@ -69,6 +69,14 @@ class MultiLayerPerceptron : private Perceptron<T>
         void setLayerBias(int layerIndex, const vector<T>& bias);
         void setAccuracy(T accuracy);
 
+        // TODO : exportWeights, exportBias to JSON, CSV, etc.
+        void export_to_json(const string& filename);
+        void export_to_csv(const string& filename);
+
+        // TODO : importWeights, importBias from JSON, CSV, etc.
+        void import_from_json(const string &filename);
+        void import_from_csv(const string &filename);
+
         // * Display layers
         void display();
 

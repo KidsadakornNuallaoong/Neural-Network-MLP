@@ -1,4 +1,11 @@
 #include "MLP.hpp"
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <stdexcept>
+#include <string>
+#include <algorithm>
+#include <cctype>
 
 #ifdef _WIN32
     #include <thread>
@@ -224,6 +231,7 @@ void MultiLayerPerceptron<T>::backPropagation(const vector<vector<T>> &inputs, c
         for (size_t j = 0; j < layers.size(); ++j) {
             vector<T> newOutputs;
             for (size_t k = 0; k < layers[j].size(); ++k) {
+                layers[j][k].typeActivation(activationTypes[j]);
                 newOutputs.push_back(layers[j][k].feedForward(layerOutputs[j]));
             }
             layerOutputs[j + 1] = newOutputs;
@@ -260,85 +268,85 @@ void MultiLayerPerceptron<T>::backPropagation(const vector<vector<T>> &inputs, c
     }
 }
 
-template <typename T>
-void MultiLayerPerceptron<T>::backPropagation_indexRandom(const vector<vector<T>> &inputs, const vector<vector<T>> &targets, const T learningRate)
-{
-    srand((unsigned int)time(NULL));
+// template <typename T>
+// void MultiLayerPerceptron<T>::backPropagation_indexRandom(const vector<vector<T>> &inputs, const vector<vector<T>> &targets, const T learningRate)
+// {
+//     srand((unsigned int)time(NULL));
 
-    int index = rand() % inputs.size();
+//     int index = rand() % inputs.size();
 
-    if (inputs.size() != targets.size()) {
-        throw std::invalid_argument("Inputs and targets must have the same size.");
-    }
+//     if (inputs.size() != targets.size()) {
+//         throw std::invalid_argument("Inputs and targets must have the same size.");
+//     }
 
-    vector<T> output = feedForward(inputs[index]);
+//     vector<T> output = feedForward(inputs[index]);
 
-    vector<T> outputError(targets[index].size());
+//     vector<T> outputError(targets[index].size());
 
-    for (size_t j = 0; j < targets[index].size(); ++j) {
-        outputError[j] = targets[index][j] - output[j];
-    }
+//     for (size_t j = 0; j < targets[index].size(); ++j) {
+//         outputError[j] = targets[index][j] - output[j];
+//     }
 
-    vector<vector<T>> errors(layers.size());
+//     vector<vector<T>> errors(layers.size());
 
-    vector<vector<T>> layerOutputs(layers.size() + 1);
+//     vector<vector<T>> layerOutputs(layers.size() + 1);
 
-    layerOutputs[0] = inputs[index];
+//     layerOutputs[0] = inputs[index];
 
-    // * Forward pass
-    for (size_t j = 0; j < layers.size(); ++j) {
-        vector<T> newOutputs;
+//     // * Forward pass
+//     for (size_t j = 0; j < layers.size(); ++j) {
+//         vector<T> newOutputs;
 
-        for (size_t k = 0; k < layers[j].size(); ++k) {
-            newOutputs.push_back(layers[j][k].feedForward(layerOutputs[j]));
-        }
-        layerOutputs[j + 1] = newOutputs;
-    }
+//         for (size_t k = 0; k < layers[j].size(); ++k) {
+//             newOutputs.push_back(layers[j][k].feedForward(layerOutputs[j]));
+//         }
+//         layerOutputs[j + 1] = newOutputs;
+//     }
 
-    // * Compute errors from output layer to input layer
-    for (int j = layers.size() - 1; j >= 0; --j) {
-        vector<T> layerErrors(layers[j].size());
-        if (j == layers.size() - 1) {
+//     // * Compute errors from output layer to input layer
+//     for (int j = layers.size() - 1; j >= 0; --j) {
+//         vector<T> layerErrors(layers[j].size());
+//         if (j == layers.size() - 1) {
 
-            #pragma omp parallel for
-            for (size_t k = 0; k < layers[j].size(); ++k) {
-                layerErrors[k] = outputLayerError(layerOutputs[j + 1][k], targets[index][k]);
-            }
-        } else {
+//             #pragma omp parallel for
+//             for (size_t k = 0; k < layers[j].size(); ++k) {
+//                 layerErrors[k] = outputLayerError(layerOutputs[j + 1][k], targets[index][k]);
+//             }
+//         } else {
 
-            #pragma omp parallel for
-            for (size_t k = 0; k < layers[j].size(); ++k) {
-                T error = 0;
-                for (size_t l = 0; l < layers[j + 1].size(); ++l) {
-                    error += hiddenLayerError(layerOutputs[j + 1][l], errors[j + 1][l], layers[j + 1][l].getWeights()[k]);
-                }
-                layerErrors[k] = error;
-            }
-        }
-        errors[j] = layerErrors;
-    }
+//             #pragma omp parallel for
+//             for (size_t k = 0; k < layers[j].size(); ++k) {
+//                 T error = 0;
+//                 for (size_t l = 0; l < layers[j + 1].size(); ++l) {
+//                     error += hiddenLayerError(layerOutputs[j + 1][l], errors[j + 1][l], layers[j + 1][l].getWeights()[k]);
+//                 }
+//                 layerErrors[k] = error;
+//             }
+//         }
+//         errors[j] = layerErrors;
+//     }
 
-    // * Update weights and biases
-    for (int j = layers.size() - 1; j >= 0; --j) {
+//     // * Update weights and biases
+//     for (int j = layers.size() - 1; j >= 0; --j) {
         
-        #pragma omp parallel for
-        for (size_t k = 0; k < layers[j].size(); ++k) {
-            for (size_t l = 0; l < layers[j][k].getWeights().size(); ++l) {
-                layers[j][k].setWeights(l, updateWeights(layers[j][k].getWeights()[l], learningRate, errors[j][k], layerOutputs[j][l]));
-            }
-            layers[j][k].setBias(updateBias(layers[j][k].getBias(), learningRate, errors[j][k]));
-        }
-    }
-}
+//         #pragma omp parallel for
+//         for (size_t k = 0; k < layers[j].size(); ++k) {
+//             for (size_t l = 0; l < layers[j][k].getWeights().size(); ++l) {
+//                 layers[j][k].setWeights(l, updateWeights(layers[j][k].getWeights()[l], learningRate, errors[j][k], layerOutputs[j][l]));
+//             }
+//             layers[j][k].setBias(updateBias(layers[j][k].getBias(), learningRate, errors[j][k]));
+//         }
+//     }
+// }
 
 template <typename T>
 T MultiLayerPerceptron<T>::updateWeights(const T weight, const T learningRate, const T error, const T input) {
-    return weight + (learningRate * error * input);
+    return weight - (learningRate * error * input);
 }
 
 template <typename T>
 T MultiLayerPerceptron<T>::updateBias(const T bias, const T learningRate, const T error) {
-    return bias + (learningRate * error);
+    return bias - (learningRate * error);
 }
 
 template <typename T>
@@ -348,7 +356,7 @@ T MultiLayerPerceptron<T>::hiddenLayerError(const T output, const T error, const
 
 template <typename T>
 T MultiLayerPerceptron<T>::outputLayerError(const T output, const T target) {
-    return output * (1 - output) * (target - output);
+    return output * (1 - output) * (output - target);
 }
 
 template <typename T>
@@ -638,6 +646,56 @@ void MultiLayerPerceptron<T>::setAccuracy(T accuracy)
 }
 
 template <typename T>
+void MultiLayerPerceptron<T>::export_to_json(const string &filename)
+{
+    ofstream file(filename);
+    if (!file.is_open()) {
+        throw std::runtime_error("Could not open file for writing");
+    }
+
+    file << "{\n";
+    file << "  \"layers\": [\n";
+    for (int i = 0; i < layers.size(); ++i) {
+        file << "    {\n";
+        file << "      \"activation\": \"" << activationTypes[i] << "\",\n";
+        file << "      \"nodes\": [\n";
+        for (int j = 0; j < layers[i].size(); ++j) {
+            file << "        {\n";
+            file << "          \"weights\": [";
+            for (int k = 0; k < layers[i][j].getWeights().size(); ++k) {
+                file << layers[i][j].getWeights()[k];
+                if (k < layers[i][j].getWeights().size() - 1) {
+                    file << ", ";
+                }
+            }
+            file << "],\n";
+            file << "          \"bias\": " << layers[i][j].getBias() << "\n";
+            file << "        }";
+            if (j < layers[i].size() - 1) {
+                file << ",";
+            }
+            file << "\n";
+        }
+        file << "      ]\n";
+        file << "    }";
+        if (i < layers.size() - 1) {
+            file << ",";
+        }
+        file << "\n";
+    }
+    file << "  ]\n";
+    file << "}\n";
+
+    file.close();
+}
+
+template <typename T>
+void MultiLayerPerceptron<T>::import_from_json(const string &filename)
+{
+    
+}
+
+template <typename T>
 void MultiLayerPerceptron<T>::display()
 {
     // * Display layers
@@ -662,8 +720,6 @@ MultiLayerPerceptron<T> MultiLayerPerceptron<T>::clone() const
     return MultiLayerPerceptron<T>(*this);
 }
 
-// Explicitly instantiate the template for the types you need
-template class MultiLayerPerceptron<long>;
 template class MultiLayerPerceptron<double>;
 template class MultiLayerPerceptron<float>;
 template class MultiLayerPerceptron<int>;
