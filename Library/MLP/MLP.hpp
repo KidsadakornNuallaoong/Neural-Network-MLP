@@ -13,6 +13,12 @@
 #include <string>
 #include <chrono>
 
+#include <fstream>
+#include <sstream>
+#include <stdexcept>
+#include <algorithm>
+#include <cctype>
+
 #include "../Perceptron/Perceptron.hpp"
 
 using namespace std;

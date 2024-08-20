@@ -1,11 +1,4 @@
 #include "MLP.hpp"
-#include <fstream>
-#include <sstream>
-#include <vector>
-#include <stdexcept>
-#include <string>
-#include <algorithm>
-#include <cctype>
 
 #ifdef _WIN32
     #include <thread>
@@ -372,6 +365,9 @@ void MultiLayerPerceptron<T>::resetWeightsBias()
 template <typename T>
 void MultiLayerPerceptron<T>::train(const vector<vector<T>> &inputs, const vector<vector<T>> &targets, const T learningRate, const bool verbose)
 {
+    // * Start time
+    auto start = chrono::high_resolution_clock::now();
+
     std::thread inputThread(checkInput);
 
     int iterations = 0;
@@ -379,6 +375,7 @@ void MultiLayerPerceptron<T>::train(const vector<vector<T>> &inputs, const vecto
     T loss = 0;
     int lossCount = 0;
 
+    // * Start train
     while (running) {
         backPropagation(inputs, targets, learningRate);
         iterations++;
@@ -423,28 +420,12 @@ void MultiLayerPerceptron<T>::train(const vector<vector<T>> &inputs, const vecto
         //         lossCount = 0;
         //     }
         // }
-
-        // // * display input and output
-        // for (int i = 0; i < inputs.size(); ++i) {
-        //     cout << "Input: ";
-        //     for (int j = 0; j < inputs[i].size(); ++j) {
-        //         cout << inputs[i][j] << " ";
-        //     }
-        //     cout << "Output: ";
-        //     for (int j = 0; j < feedForward(inputs[i]).size(); ++j) {
-        //         cout << feedForward(inputs[i])[j] << " ";
-        //     }
-        //     cout << endl;
-        // }
-        
-        // #ifdef _WIN32
-        //     system("cls");
-        // #elif __linux__
-        //     system("clear");
-        // #endif
     }
 
     inputThread.join();
+
+    // * End time
+    auto end = chrono::high_resolution_clock::now();
 
     // * report trainning
     cout << endl;
@@ -453,12 +434,16 @@ void MultiLayerPerceptron<T>::train(const vector<vector<T>> &inputs, const vecto
     cout << "Accuracy: " << calculateAccuracy(inputs, targets) * 100 << "%" << endl;
     cout << "Loss: " << calculateLoss(inputs, targets) << endl;
     cout << "All outputs correct: " << allOutputsCorrect(inputs, targets) << endl;
+    cout << "Time using: " << chrono::duration_cast<chrono::seconds>(end - start).count() << "s" << endl;
     cout << endl;
 }
 
 template <typename T>
 void MultiLayerPerceptron<T>::train(const vector<vector<T>> &inputs, const vector<vector<T>> &targets, const T learningRate, const int iterations, const bool verbose)
 {   
+    // * Start time 
+    auto start = chrono::high_resolution_clock::now();
+
     // * Start train
     for (int i = 0; i < iterations; ++i) {
         backPropagation(inputs, targets, learningRate);
@@ -467,6 +452,9 @@ void MultiLayerPerceptron<T>::train(const vector<vector<T>> &inputs, const vecto
         }
     }
 
+    // * End time
+    auto end = chrono::high_resolution_clock::now();
+
     // * report trainning
     cout << endl;
     cout << "Training finished!" << endl;
@@ -474,6 +462,7 @@ void MultiLayerPerceptron<T>::train(const vector<vector<T>> &inputs, const vecto
     cout << "Accuracy: " << calculateAccuracy(inputs, targets) * 100 << "%" << endl;
     cout << "Loss: " << calculateLoss(inputs, targets) << endl;
     cout << "All outputs correct: " << allOutputsCorrect(inputs, targets) << endl;
+    cout << "Time using: " << chrono::duration_cast<chrono::seconds>(end - start).count() << "s" << endl;
     cout << endl;
 }
 
@@ -708,7 +697,6 @@ vector<vector<T>> MultiLayerPerceptron<T>::predict(const vector<vector<T>> &inpu
             cout << endl;
         }
     }
-
 
     if (r == ROUND || r == R_D) {
         vector<vector<T>> roundedOutputs;
