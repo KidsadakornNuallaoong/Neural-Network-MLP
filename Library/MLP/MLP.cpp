@@ -436,6 +436,7 @@ void MultiLayerPerceptron<T>::train(const vector<vector<T>> &inputs, const vecto
         //     }
         //     cout << endl;
         // }
+        
         // #ifdef _WIN32
         //     system("cls");
         // #elif __linux__

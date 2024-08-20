@@ -27,8 +27,8 @@ int main() {
     // mlp.setLayerWeights(1, {{0.7, 0.8, 0.9}});
     // mlp.setLayerBias(0, {0.1, 0.2, 0.3});
     // mlp.setLayerBias(1, {0.4});
-    mlp.setActivation({"relu", "relu", "sigmoid"});
-    mlp.setAccuracy(0.1);
+    mlp.setActivation({"sigmoid", "sigmoid", "sigmoid"});
+    mlp.setAccuracy(0.001);
     mlp.display();
 
     double learningRate = 0.1;
