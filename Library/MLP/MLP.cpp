@@ -107,6 +107,10 @@ MultiLayerPerceptron<T>::~MultiLayerPerceptron()
     }
     layers.clear();
     layers.shrink_to_fit();
+
+    // * clear cache
+    activationTypes.clear();
+    activationTypes.shrink_to_fit();
 }
 
 template <typename T>
@@ -137,69 +141,6 @@ vector<T> MultiLayerPerceptron<T>::feedForward(const vector<T> &inputs)
     }
     return outputs;
 }
-
-/*
-template <typename T>
-void MultiLayerPerceptron<T>::backPropagation(const vector<vector<T>> &inputs, const vector<vector<T>> &targets, const T learningRate)
-{
-    for (int i = 0; i < inputs.size(); ++i) {
-        vector<vector<T>> outputs;
-        vector<vector<T>> errors(layers.size());
-        vector<vector<T>> biases(layers.size());
-
-        // * feed forward
-        outputs.push_back(inputs[i]);
-        for (int j = 0; j < layers.size(); ++j) {
-            vector<T> newOutputs;
-            for (int k = 0; k < layers[j].size(); ++k) {
-                layers[j][k].typeActivation(activationTypes[j]);
-                newOutputs.push_back(layers[j][k].feedForward(outputs.back()));
-            }
-            outputs.push_back(newOutputs);
-        }
-
-        // * calculate error (start from output layer and move backwards)
-        for (int j = layers.size() - 1; j >= 0; --j) {
-            vector<T> newErrors;
-            if (j == layers.size() - 1) {  // output layer
-                for (int k = 0; k < layers[j].size(); ++k) {
-                    newErrors.push_back(outputLayerError(outputs[j + 1][k], targets[i][k]));
-                }
-            } else {  // hidden layers
-                for (int k = 0; k < layers[j].size(); ++k) {
-                    T error = 0.0;
-                    for (int l = 0; l < layers[j + 1].size(); ++l) {
-                        // * use output error for hidden layer
-                        error += hiddenLayerError(outputs[j + 1][l], errors[j + 1][l], layers[j + 1][l].getWeights()[k]);
-                    }
-                    newErrors.push_back(error);
-                }
-            }
-            errors[j] = newErrors;
-        }
-
-        // // * display errors
-        // for (int j = 0; j < errors.size(); ++j) {
-        //     cout << "Layer " << j << " errors: ";
-        //     for (int k = 0; k < errors[j].size(); ++k) {
-        //         cout << errors[j][k] << " ";
-        //     }
-        //     cout << endl;
-        // }
-
-        // * update weights and bias
-        for (int j = layers.size() - 1; j >= 0; --j) {
-            for (int k = 0; k < layers[j].size(); ++k) {
-                // cout << "Layer " << j << " Node " << k << endl;
-                for (int l = 0; l < layers[j][k].getWeights().size(); ++l) {
-                    layers[j][k].setWeights(l, updateWeights(layers[j][k].getWeights()[l], learningRate, errors[j][k], outputs[j][l]));
-                    layers[j][k].setBias(updateBias(layers[j][k].getBias(), learningRate, errors[j][k]));
-                }
-            }
-        }
-    }
-}
-*/
 
 template <typename T>
 void MultiLayerPerceptron<T>::backPropagation(const vector<vector<T>> &inputs, const vector<vector<T>> &targets, const T learningRate)
@@ -234,12 +175,14 @@ void MultiLayerPerceptron<T>::backPropagation(const vector<vector<T>> &inputs, c
         for (int j = layers.size() - 1; j >= 0; --j) {
             vector<T> layerErrors(layers[j].size());
             if (j == layers.size() - 1) {
+                #pragma omp parallel for
                 for (size_t k = 0; k < layers[j].size(); ++k) {
                     layerErrors[k] = outputLayerError(layerOutputs[j + 1][k], targets[i][k]);
                 }
             } else {
                 for (size_t k = 0; k < layers[j].size(); ++k) {
                     T error = 0;
+                    #pragma omp parallel for
                     for (size_t l = 0; l < layers[j + 1].size(); ++l) {
                         error += hiddenLayerError(layerOutputs[j + 1][l], errors[j + 1][l], layers[j + 1][l].getWeights()[k]);
                     }
@@ -249,8 +192,9 @@ void MultiLayerPerceptron<T>::backPropagation(const vector<vector<T>> &inputs, c
             errors[j] = layerErrors;
         }
 
-        // Update weights and biases
+        // * Update weights and biases
         for (int j = layers.size() - 1; j >= 0; --j) {
+            #pragma omp parallel for
             for (size_t k = 0; k < layers[j].size(); ++k) {
                 for (size_t l = 0; l < layers[j][k].getWeights().size(); ++l) {
                     layers[j][k].setWeights(l, updateWeights(layers[j][k].getWeights()[l], learningRate, errors[j][k], layerOutputs[j][l]));
@@ -260,77 +204,6 @@ void MultiLayerPerceptron<T>::backPropagation(const vector<vector<T>> &inputs, c
         }
     }
 }
-
-// template <typename T>
-// void MultiLayerPerceptron<T>::backPropagation_indexRandom(const vector<vector<T>> &inputs, const vector<vector<T>> &targets, const T learningRate)
-// {
-//     srand((unsigned int)time(NULL));
-
-//     int index = rand() % inputs.size();
-
-//     if (inputs.size() != targets.size()) {
-//         throw std::invalid_argument("Inputs and targets must have the same size.");
-//     }
-
-//     vector<T> output = feedForward(inputs[index]);
-
-//     vector<T> outputError(targets[index].size());
-
-//     for (size_t j = 0; j < targets[index].size(); ++j) {
-//         outputError[j] = targets[index][j] - output[j];
-//     }
-
-//     vector<vector<T>> errors(layers.size());
-
-//     vector<vector<T>> layerOutputs(layers.size() + 1);
-
-//     layerOutputs[0] = inputs[index];
-
-//     // * Forward pass
-//     for (size_t j = 0; j < layers.size(); ++j) {
-//         vector<T> newOutputs;
-
-//         for (size_t k = 0; k < layers[j].size(); ++k) {
-//             newOutputs.push_back(layers[j][k].feedForward(layerOutputs[j]));
-//         }
-//         layerOutputs[j + 1] = newOutputs;
-//     }
-
-//     // * Compute errors from output layer to input layer
-//     for (int j = layers.size() - 1; j >= 0; --j) {
-//         vector<T> layerErrors(layers[j].size());
-//         if (j == layers.size() - 1) {
-
-//             #pragma omp parallel for
-//             for (size_t k = 0; k < layers[j].size(); ++k) {
-//                 layerErrors[k] = outputLayerError(layerOutputs[j + 1][k], targets[index][k]);
-//             }
-//         } else {
-
-//             #pragma omp parallel for
-//             for (size_t k = 0; k < layers[j].size(); ++k) {
-//                 T error = 0;
-//                 for (size_t l = 0; l < layers[j + 1].size(); ++l) {
-//                     error += hiddenLayerError(layerOutputs[j + 1][l], errors[j + 1][l], layers[j + 1][l].getWeights()[k]);
-//                 }
-//                 layerErrors[k] = error;
-//             }
-//         }
-//         errors[j] = layerErrors;
-//     }
-
-//     // * Update weights and biases
-//     for (int j = layers.size() - 1; j >= 0; --j) {
-        
-//         #pragma omp parallel for
-//         for (size_t k = 0; k < layers[j].size(); ++k) {
-//             for (size_t l = 0; l < layers[j][k].getWeights().size(); ++l) {
-//                 layers[j][k].setWeights(l, updateWeights(layers[j][k].getWeights()[l], learningRate, errors[j][k], layerOutputs[j][l]));
-//             }
-//             layers[j][k].setBias(updateBias(layers[j][k].getBias(), learningRate, errors[j][k]));
-//         }
-//     }
-// }
 
 template <typename T>
 T MultiLayerPerceptron<T>::updateWeights(const T weight, const T learningRate, const T error, const T input) {
@@ -501,38 +374,41 @@ T MultiLayerPerceptron<T>::activationDerivative(T x, string type)
     }
     
     if (type == "linear") {
-        // * Derivative of f(x) = x is 1
+        // Derivative of a linear function f(x) = x is 1
         return 1;
     }
     else if (type == "sigmoid") {
-        // * Derivative of f(x) = 1 / (1 + e^(-x)) is f(x) * (1 - f(x))
+        // Compute the sigmoid function value
         T sigmoid = 1 / (1 + exp(-x));
+        // Derivative of sigmoid is sigmoid * (1 - sigmoid)
         return sigmoid * (1 - sigmoid);
     }
     else if (type == "tanh") {
-        // * Derivative of f(x) = tanh(x) is 1 - tanh(x)^2
-        return 1 - tanh(x) * tanh(x);
+        // Compute tanh(x) value
+        T tanh_x = tanh(x);
+        // Derivative of tanh(x) is 1 - tanh(x)^2
+        return 1 - tanh_x * tanh_x;
     }
     else if (type == "relu") {
-        // * Derivative of f(x) = max(0, x) is 1 if x > 0 else 0
-        return x > 0 ? x : 0;
-    }
-    else if (type == "leakyrelu") {
-        // * Derivative of f(x) = max(0.01x, x) is 1 if x > 0 else 0.01
-        return x > 0 ? x : x * 0.01;
-    }
-    else if (type == "softmax") {
-        // * Derivative of softmax is complex and involves the full vector
-        throw invalid_argument("Softmax derivative is not applicable for a single value.");
-    }
-    else if (type == "step") {
-        // * Derivative of f(x) = 1 if x > 0 else 0 
+        // Derivative of ReLU is 1 if x > 0 else 0
         return x > 0 ? 1 : 0;
     }
+    else if (type == "leakyrelu") {
+        // Derivative of Leaky ReLU is 1 if x > 0 else 0.01
+        return x > 0 ? 1 : 0.01;
+    }
+    else if (type == "softmax") {
+        // Derivative of softmax is complex and involves the full vector
+        throw std::invalid_argument("Softmax derivative is not applicable for a single value.");
+    }
+    else if (type == "step") {
+        // Derivative of step function is not well-defined, usually 0 everywhere
+        return 0; // Optionally, throw an exception or handle it as per your requirements
+    }
     else {
-        // * Handle unknown activation type
-        cerr << "\033[1;31mActivation Type Not Found\033[0m" << endl;
-        throw invalid_argument("Activation Type Not Found");
+        // Handle unknown activation type
+        std::cerr << "\033[1;31mActivation Type Not Found\033[0m" << std::endl;
+        throw std::invalid_argument("Activation Type Not Found");
     }
 }
 

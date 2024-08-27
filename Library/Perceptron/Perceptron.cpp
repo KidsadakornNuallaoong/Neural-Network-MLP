@@ -120,14 +120,14 @@ T Perceptron<T>::activation(T x) {
     } else if (activationType == "leakyrelu") {
         return (x > 0) ? x : 0.01 * x;
     } else if (activationType == "softmax") {
-        // Softmax is typically computed over a vector, not a scalar.
-        cerr << "\033[1;31mSoftmax must be computed over a vector, not a scalar.\033[0m" << endl;
-        return x; // Return the value as-is for compatibility.
+        // Softmax is not applicable here for scalar values.
+        std::cerr << "\033[1;31mSoftmax must be computed over a vector, not a scalar.\033[0m" << std::endl;
+        throw std::invalid_argument("Softmax must be computed over a vector.");
     } else if (activationType == "step") {
         return (x > 0) ? 1 : 0;
     } else {
-        cerr << "\033[1;31mActivation Type Not Found\033[0m" << endl;
-        return 0;
+        std::cerr << "\033[1;31mActivation Type Not Found\033[0m" << std::endl;
+        throw std::invalid_argument("Activation Type Not Found");
     }
 }
 
