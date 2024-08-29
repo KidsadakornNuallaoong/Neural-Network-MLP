@@ -192,6 +192,16 @@ void MultiLayerPerceptron<T>::backPropagation(const vector<vector<T>> &inputs, c
             errors[j] = layerErrors;
         }
 
+        // cout << "Error: ";
+        // for (int j = 0; j < errors.size(); ++j) {
+        //     cout << "Layer " << j << ": ";
+        //     for (int k = 0; k < errors[j].size(); ++k) {
+        //         cout << "Node " << k << ": ";
+        //         cout << errors[j][k] << " ";
+        //         cout << endl;
+        //     }
+        // }
+
         // * Update weights and biases
         for (int j = layers.size() - 1; j >= 0; --j) {
             #pragma omp parallel for
@@ -222,7 +232,7 @@ T MultiLayerPerceptron<T>::hiddenLayerError(const T output, const T error, const
 
 template <typename T>
 T MultiLayerPerceptron<T>::outputLayerError(const T output, const T target) {
-    return output * (1 - output) * (output - target);
+    return (output - target);
 }
 
 template <typename T>

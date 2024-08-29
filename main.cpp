@@ -155,22 +155,22 @@ int main() {
     // * XOR Problem
     // vector<vector<double>> inputs = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
     vector<vector<double>> inputs = img;
-    // vector<vector<double>> targets = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-    vector<vector<double>> targets = {
-        binary_texts_double[0],
-        binary_texts_double[1],
-        binary_texts_double[2],
-        binary_texts_double[3]
-    };
+    vector<vector<double>> targets = {{0}, {0}, {1}, {2}};
+    // vector<vector<double>> targets = {
+    //     binary_texts_double[0],
+    //     binary_texts_double[1],
+    //     binary_texts_double[2],
+    //     binary_texts_double[3]
+    // };
 
     cout << "Max size: " << count_max_size(binary_texts) << endl;
 
     // * Test Multi-Layer Perceptron
-    vector<int> layersSize = {8*8, 64, 32, 32, max_size};
+    vector<int> layersSize = {8*8, 64, 32, 32, 1};
     MultiLayerPerceptron<double> mlp(layersSize);
 
-    mlp.setActivation({"sigmoid", "sigmoid", "sigmoid", "sigmoid"});
-    mlp.setAccuracy(0.05);
+    mlp.setActivation({"sigmoid", "sigmoid", "sigmoid", "linear"});
+    mlp.setAccuracy(0.0001);
     // mlp.display();
 
     double learningRate = 0.1;
@@ -185,52 +185,53 @@ int main() {
 
     // cout << "Initial outputs:" << endl;
     vector<vector<double>> inputs_test = {
-        {0, 0, 0, 0, 0, 0, 0, 0,
-         0, 0, 0, 0, 1, 0, 0, 0,
-         0, 0, 0, 1, 1, 0, 0, 0,
-         0, 0, 0, 0, 1, 0, 0, 0,
-         0, 0, 0, 0, 1, 0, 0, 0,
-         0, 0, 0, 0, 1, 0, 0, 0,
-         0, 0, 0, 1, 1, 1, 0, 0,
-         0, 0, 0, 0, 0, 0, 0, 0},
+        {0.1, 0, 0, 0.05, 0, 0, 0, 0,
+        0, 0, 0, 0.02, 1, 0.01, 0, 0.03,
+        0, 0, 0, 1, 1, 0.02, 0, 0,
+        0.05, 0, 0, 0, 1, 0, 0.04, 0,
+        0, 0.03, 0, 0, 1, 0, 0, 0.01,
+        0, 0, 0, 0, 1, 0.03, 0, 0,
+        0, 0.02, 0, 1, 1, 1, 0, 0.04,
+        0, 0, 0.05, 0.01, 0, 0.03, 0, 0},
 
-         {0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 1, 0, 0.5, 0,
-          0, 0, 0, 1, 1, 0, 0, 0,
-          0, 0.5, 0, 0, 1, 0, 0, 0,
-          0, 0, 0, 0, 1, 0, 0, 0,
-          0, 0, 1, 0, 1, 0, 0, 0,
-          0, 0.2, 0, 1, 1, 1, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0.02, 0, 0, 0, 0.03, 0, 0,
+        0, 0.04, 0, 0.01, 1, 0.02, 0.5, 0.03,
+        0.01, 0, 0, 1, 1, 0.05, 0, 0.01,
+        0.03, 0.5, 0.02, 0.04, 1, 0, 0.03, 0,
+        0, 0.01, 0.03, 0.02, 1, 0, 0, 0.04,
+        0.02, 0.04, 1, 0, 1, 0, 0, 0.01,
+        0.01, 0.2, 0.03, 1, 1, 1, 0, 0.02,
+        0.04, 0.01, 0.03, 0, 0, 0.02, 0.01, 0},
 
-        {0, 0, 0, 0, 0, 0, 0, 0,
-         0, 0, 0, 1, 1, 0, 0, 0,
-         0, 0, 1, 1, 1, 1, 0, 0,
-         0, 0, 0, 0, 1, 1, 0, 0,
-         0, 0, 0, 1, 1, 0, 0, 0,
-         0, 0, 1, 1, 0, 0, 0, 0,
-         0, 0, 1, 1, 1, 1, 0, 0,
-         0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0.01, 0, 0.02, 0, 0.01, 0.03, 0,
+        0, 0, 0.03, 1, 1, 0.02, 0.01, 0.04,
+        0.01, 0, 1, 1, 1, 1, 0.05, 0.01,
+        0, 0.04, 0, 0, 1, 1, 0.02, 0,
+        0.03, 0.01, 0, 1, 1, 0.03, 0.04, 0.02,
+        0, 0.02, 1, 1, 0, 0, 0.01, 0.03,
+        0.01, 0.02, 1, 1, 1, 1, 0.02, 0.03,
+        0, 0, 0.01, 0.04, 0, 0.01, 0, 0.02},
+
+        {0.02, 0, 0.01, 0, 0.03, 0, 0, 0.01,
+        0, 0.03, 0.02, 1, 1, 0.02, 0.01, 0.2,
+        0.04, 0.02, 1, 1, 1, 1, 0.03, 0.01,
+        0.01, 0.01, 0.02, 0, 1, 1, 0.04, 0,
+        0.01, 0.03, 0.01, 1, 1, 0.01, 0.2, 0.03,
+        0.02, 0.02, 1, 1, 0.04, 0.03, 0.01, 0,
+        0.03, 0.01, 1, 1, 1, 1, 0.04, 0,
+        0, 0.02, 0, 0.01, 0.02, 0.01, 0, 0}
     };
 
-    vector<vector<double>> result = mlp.predict(inputs_test, R_D);
 
-    // * convert binary to text
+    vector<vector<double>> result = mlp.predict(inputs_test,ROUND);
+
     for (int i = 0; i < int(result.size()); i++){
-        cout << "Answer: " << binary_to_text(double_to_int(result[i])) << endl;
+        cout << "Result: ";
+        for (int j = 0; j < int(result[i].size()); j++){
+            cout << result[i][j] << " ";
+        }
+        cout << endl;
     }
-
-    // if(round(result[0][0])){
-    //     cout << "Number predict: " << "0" << " rate: " << result[0][0] << endl;
-    // } else if(round(result[0][1])){
-    //     cout << "Number predict: " << "1" << " rate: " << result[0][1] << endl;
-    // } else if(round(result[0][2])){
-    //     cout << "Number predict: " << "2" << " rate: " << result[0][2] << endl;
-    // }
-
-    // mlp.display();
-    // mlp.export_to_json("model.json");
-    // cout << "Result: " << mlp.predict(inputs_test, DISPLAY) << endl;
 
     return 0;
 }
