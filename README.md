@@ -1,5 +1,7 @@
 # perceptron concept
 perceptron คือ โครงข่ายประสาทเทียม เป็นองค์ประกอบสำคัญที่อยู่ใน Neural Network
+![party](https://github.com/user-attachments/assets/50f645ef-1977-4120-b018-430fc0de3b91)
+
 ใช้ในการจำลองการทำงานของ neuron cell
 
 # perceptron formula
