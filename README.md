@@ -8,5 +8,5 @@ perceptron คือ โครงข่ายประสาทเทียม �
 # activation function
 ![alt text](image-1.png)
 
-# error evaluate and update weight/bias
+# error and update weight/bias
 ![alt text](image-2.png)
