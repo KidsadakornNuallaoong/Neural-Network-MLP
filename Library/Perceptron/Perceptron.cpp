@@ -204,7 +204,5 @@ void Perceptron<T>::display()
 }
 
 // Explicitly instantiate the template for the types you need
-template class Perceptron<long>;
-template class Perceptron<double>;
 template class Perceptron<float>;
-template class Perceptron<int>;
+template class Perceptron<double>;

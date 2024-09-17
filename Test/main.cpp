@@ -11,14 +11,9 @@ using namespace std;
 #include "../Library/MLP/MLP.hpp"
 
 int main() {
-
-    // * Test Multi-Layer Perceptron
     vector<int> layersSize = {2, 8, 8, 1};
     MultiLayerPerceptron<double> mlp(layersSize);
 
-    // * XOR Problem
-    // vector<vector<double>> inputs = {{1, 2}, {3, 4}, {5, 6}, {7, 8}};
-    // vector<vector<double>> targets = {{3}, {5}, {7}, {9}};
     vector<vector<double>> inputs = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
     vector<vector<double>> targets = {{0}, {1}, {1}, {0}};
 

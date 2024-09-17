@@ -25,13 +25,13 @@ build:
 demo: build
 	@cls
 	@$(GXX) Test\main.cpp $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o $(Library_Path)\$(MLP_Path)\$(MLPName).o -o Test\$(output) $(Flags) || $(MAKE) --no-print-directory clean
-	@$(output)
+	@$(output) || $(MAKE) --no-print-directory clean
 
 	@$(MAKE) --no-print-directory clean
 
 run: build
 	@$(GXX) main.cpp $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o $(Library_Path)\$(MLP_Path)\$(MLPName).o -o $(output) $(Flags) || $(MAKE) --no-print-directory clean
-	@$(output)
+	@$(output) || $(MAKE) --no-print-directory clean
 
 	@$(MAKE) --no-print-directory clean
 
@@ -52,9 +52,12 @@ demo: build
 	@clear
 	@$(GXX) ./Test/main.cpp ./$(Library_Path)/$(Perceptron_Path)/$(PerceptronName).o ./$(Library_Path)/$(MLP_Path)/$(MLPName).o -o ./Test/$(output) $(Flags)  || $(MAKE) --no-print-directory clean
 	@echo "\033[1;32mAssembly code successfully!\033[0m"
-	@./Test/$(output)
+	@./Test/$(output) || $(MAKE) --no-print-directory clean
 
 	@$(MAKE) --no-print-directory clean
+
+test: build
+	@$(GXX) main.cpp ./$(Library_Path)/$(Perceptron_Path)/$(PerceptronName).o ./$(Library_Path)/$(MLP_Path)/$(MLPName).o -o $(output) $(Flags)
 
 run: build
 	@$(GXX) main.cpp ./$(Library_Path)/$(Perceptron_Path)/$(PerceptronName).o ./$(Library_Path)/$(MLP_Path)/$(MLPName).o -o $(output) $(Flags) || $(MAKE) --no-print-directory clean

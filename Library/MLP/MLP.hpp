@@ -36,6 +36,9 @@ class MultiLayerPerceptron : private Perceptron<T>
 
         T accuracy = 0.01;
 
+        // * log history
+        vector<MultiLayerPerceptron<T>> history;
+
     public:
         // * Constructor
         MultiLayerPerceptron();
@@ -95,6 +98,9 @@ class MultiLayerPerceptron : private Perceptron<T>
 
         // * Clone the MLP
         MultiLayerPerceptron<T> clone() const;
+
+        // * Optional
+        vector<MultiLayerPerceptron<T>> getHistory();
 };
 
 #endif // MLP_HPP

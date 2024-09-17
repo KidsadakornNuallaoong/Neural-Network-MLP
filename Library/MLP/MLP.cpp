@@ -180,9 +180,9 @@ void MultiLayerPerceptron<T>::backPropagation(const vector<vector<T>> &inputs, c
                     layerErrors[k] = outputLayerError(layerOutputs[j + 1][k], targets[i][k]);
                 }
             } else {
+                #pragma omp parallel for
                 for (size_t k = 0; k < layers[j].size(); ++k) {
                     T error = 0;
-                    #pragma omp parallel for
                     for (size_t l = 0; l < layers[j + 1].size(); ++l) {
                         error += hiddenLayerError(layerOutputs[j + 1][l], errors[j + 1][l], layers[j + 1][l].getWeights()[k]);
                     }
@@ -227,7 +227,7 @@ T MultiLayerPerceptron<T>::updateBias(const T bias, const T learningRate, const 
 
 template <typename T>
 T MultiLayerPerceptron<T>::hiddenLayerError(const T output, const T error, const T weight) {
-    return output * (1 - output) * error * weight;
+    return output * error * weight;
 }
 
 template <typename T>
@@ -238,8 +238,8 @@ T MultiLayerPerceptron<T>::outputLayerError(const T output, const T target) {
 template <typename T>
 void MultiLayerPerceptron<T>::resetWeightsBias()
 {
-    for (int i = 0; i < layers.size(); ++i) {
-        for (int j = 0; j < layers[i].size(); ++j) {
+    for (size_t i = 0; i < layers.size(); ++i) {
+        for (size_t j = 0; j < layers[i].size(); ++j) {
             layers[i][j].resetWeightsBias();
         }
     }
@@ -332,6 +332,25 @@ void MultiLayerPerceptron<T>::train(const vector<vector<T>> &inputs, const vecto
         backPropagation(inputs, targets, learningRate);
         if(verbose == true || trainning_display) {
             cout << "Iterations: " << iterations << " Accuracy: " << calculateAccuracy(inputs, targets) * 100 << "%" << " Loss: " << calculateLoss(inputs, targets) << endl;
+        }
+
+        if(verbose == true || trainning_display) {
+            cout << "Iterations: " << iterations << " Accuracy: " << calculateAccuracy(inputs, targets) * 100 << "%" << " Loss: " << calculateLoss(inputs, targets) << endl;
+        }
+
+        // * if loss is less than accuracy then break
+        if (calculateLoss(inputs, targets) < accuracy) {
+            // * all outputs correct
+            if (allOutputsCorrect(inputs, targets)) {
+                running = false;
+                break;
+            }
+        }
+
+        // * if loss is nan, inf then break
+        if (isnan(calculateLoss(inputs, targets)) || isinf(calculateLoss(inputs, targets))) {
+            running = false;
+            break;
         }
     }
 
@@ -444,11 +463,11 @@ T MultiLayerPerceptron<T>::calculateLoss(const vector<vector<T>> &inputs, const 
 {
     double totalLoss = 0.0;
 
-    for (int i = 0; i < inputs.size(); ++i) {
+    for (size_t i = 0; i < inputs.size(); ++i) {
         vector<T> output = feedForward(inputs[i]);
-        for (int j = 0; j < output.size(); ++j) {
+        for (size_t j = 0; j < output.size(); ++j) {
             T error = targets[i][j] - output[j];
-            totalLoss += error * error;
+            totalLoss += error;
         }
     }
 
@@ -459,9 +478,9 @@ T MultiLayerPerceptron<T>::calculateLoss(const vector<vector<T>> &inputs, const 
 template <typename T>
 bool MultiLayerPerceptron<T>::allOutputsCorrect(const vector<vector<T>> &inputs, const vector<vector<T>> &targets)
 {
-    for (int i = 0; i < inputs.size(); ++i) {
+    for (size_t i = 0; i < inputs.size(); ++i) {
         vector<T> output = feedForward(inputs[i]);
-        for (int j = 0; j < output.size(); ++j) {
+        for (size_t j = 0; j < output.size(); ++j) {
             if (abs(targets[i][j] - output[j]) > accuracy) {
                 return false;
             }
@@ -674,6 +693,11 @@ MultiLayerPerceptron<T> MultiLayerPerceptron<T>::clone() const
     return MultiLayerPerceptron<T>(*this);
 }
 
-template class MultiLayerPerceptron<double>;
+template <typename T>
+vector<MultiLayerPerceptron<T>> MultiLayerPerceptron<T>::getHistory()
+{
+    return vector<MultiLayerPerceptron<T>>(this->history);
+}
+
 template class MultiLayerPerceptron<float>;
-template class MultiLayerPerceptron<int>;
+template class MultiLayerPerceptron<double>;
