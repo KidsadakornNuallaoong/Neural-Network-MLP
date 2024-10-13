@@ -254,11 +254,11 @@ int main() {
     cout << "Max size: " << count_max_size(binary_texts) << endl;
 
     // * Test Multi-Layer Perceptron
-    vector<int> layersSize = {8*8, 64, 16, 1};
+    vector<int> layersSize = {8*8, 64, 32, 1};
     MultiLayerPerceptron<double> mlp(layersSize);
 
     mlp.setActivation({"sigmoid", "sigmoid", "linear"});
-    mlp.setAccuracy(0.00001);
+    mlp.setAccuracy(0.01);
     // mlp.display();
 
     double learningRate = 0.01;
@@ -316,7 +316,7 @@ int main() {
 
     vector<vector<double>> inputs_test = img;
 
-    add_noise(inputs_test, 0.5723);
+    add_noise(inputs_test, 0.01723);
 
     // for (const auto& image : inputs_test) {
     //     for (size_t i = 0; i < image.size(); ++i) {

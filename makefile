@@ -1,6 +1,39 @@
-GXX=g++
+.SILENT:
+# config version to GLIBCXX_3.4.30 and arm64 build to raspberrypi 5
+# GXX=aarch64-linux-gnu-g++
+# GXX=g++
 
-output=main
+# Detect OS and architecture
+ifeq ($(OS),Windows_NT)
+    OS := Windows_NT
+    arch := x86_64  # Default architecture for Windows; can be adjusted if needed
+else
+    OS := $(shell uname -s)
+    arch := $(shell uname -m)
+endif
+
+# Select compiler based on architecture and OS
+ifeq ($(OS),Linux)
+    # Check for x86_64, x86, i686, or i386 using filter
+    ifneq ($(filter x86_64 x86 i686 i386,$(arch)),)
+		GXX = g++
+    else ifneq ($(filter arm64 aarch64 armv7l armv6l,$(arch)),)
+	    GXX = aarch64-linux-gnu-g++
+    else
+        $(error "Unknown Linux architecture: $(arch)")
+    endif
+else ifeq ($(OS),Windows_NT)
+	ifneq ($(filter x86_64 x86 i686 i386,$(arch)),)
+		GXX = g++
+	else
+		$(error "Unknown Windows architecture: $(arch)")
+	endif
+else
+    $(error "Unknown OS: $(OS)")
+endif
+
+app=main
+output=dist
 
 Library_Path=Library
 
@@ -15,56 +48,66 @@ ifeq ($(OS), Windows_NT)
 # Flags=-I"D:\Developer\Python\include" -I"D:\Developer\Python\Lib\site-packages\numpy\core\include" -L"D:\Developer\Python\libs" -lpython312
 Flags= -fopenmp -lgdi32
 
-build:
+PREFILE:
 	@$(GXX) $(Library_Path)\$(Perceptron_Path)\Perceptron.cpp -o $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o -c || $(MAKE) --no-print-directory clean
-	@echo Build Perceptron compiled successfully!
+	@echo PREFILE Perceptron compiled successfully!
 
 	@$(GXX) $(Library_Path)\$(MLP_Path)\MLP.cpp -o $(Library_Path)\$(MLP_Path)\$(MLPName).o -c || $(MAKE) --no-print-directory clean
-	@echo Build Neural Network compiled successfully!
+	@echo PREFILE Neural Network compiled successfully!
 
-demo: build
+demo: PREFILE
 	@cls
-	@$(GXX) Test\main.cpp $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o $(Library_Path)\$(MLP_Path)\$(MLPName).o -o Test\$(output) $(Flags) || $(MAKE) --no-print-directory clean
-	@$(output) || $(MAKE) --no-print-directory clean
+	@$(GXX) Test\main.cpp $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o $(Library_Path)\$(MLP_Path)\$(MLPName).o -o Test\$(app) $(Flags) || $(MAKE) --no-print-directory clean
+	@$(app) || $(MAKE) --no-print-directory clean
 
 	@$(MAKE) --no-print-directory clean
 
-run: build
-	@$(GXX) main.cpp $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o $(Library_Path)\$(MLP_Path)\$(MLPName).o -o $(output) $(Flags) || $(MAKE) --no-print-directory clean
-	@$(output) || $(MAKE) --no-print-directory clean
+build: PREFILE
+
+ifeq (,$(wildcard $(output)))
+	@mkdir dist
+endif
+
+	@$(GXX) main.cpp $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o $(Library_Path)\$(MLP_Path)\$(MLPName).o -o $(output)\$(app) $(Flags) || $(MAKE) --no-print-directory clean
+	@$(output)\$(app) || $(MAKE) --no-print-directory clean
 
 	@$(MAKE) --no-print-directory clean
 
 clean:
-	@del /f $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o $(Library_Path)\$(MLP_Path)\$(MLPName).o *.o *.out *.exe $(output) > nul  2>&1 .\test\*.o .\test\*.out .\test\*.exe .\Test\$(output) > nul  2>&1
+	@del /f /q $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o $(Library_Path)\$(MLP_Path)\$(MLPName).o *.o *.out *.exe $(app) .\Test\*.o .\Test\*.out .\Test\*.exe .\Test\$(app) $(output)\* 2>nul
 else
 
 Flags= -fopenmp -Wall -pthread
 
-build:
+PREFILE:
 	@$(GXX) ./$(Library_Path)/$(Perceptron_Path)/Perceptron.cpp -o ./$(Library_Path)/$(Perceptron_Path)/$(PerceptronName).o -c || $(MAKE) --no-print-directory clean
-	@echo "\033[1;32mBuild Perceptron compiled successfully!\033[0m"
+	@echo "\033[1;32mPREFILE Perceptron compiled successfully!\033[0m"
 
 	@$(GXX) ./$(Library_Path)/$(MLP_Path)/MLP.cpp -o ./$(Library_Path)/$(MLP_Path)/$(MLPName).o -c || $(MAKE) --no-print-directory clean
-	@echo "\033[1;32mBuild MultiLayerPerceptron compiled successfully!\033[0m"
+	@echo "\033[1;32mPREFILE MultiLayerPerceptron compiled successfully!\033[0m"
 
-demo: build
+demo: PREFILE
 	@clear
-	@$(GXX) ./Test/main.cpp ./$(Library_Path)/$(Perceptron_Path)/$(PerceptronName).o ./$(Library_Path)/$(MLP_Path)/$(MLPName).o -o ./Test/$(output) $(Flags)  || $(MAKE) --no-print-directory clean
+	@$(GXX) ./Test/main.cpp ./$(Library_Path)/$(Perceptron_Path)/$(PerceptronName).o ./$(Library_Path)/$(MLP_Path)/$(MLPName).o -o ./Test/$(app) $(Flags)  || $(MAKE) --no-print-directory clean
 	@echo "\033[1;32mAssembly code successfully!\033[0m"
-	@./Test/$(output) || $(MAKE) --no-print-directory clean
+	@./Test/$(app) || $(MAKE) --no-print-directory clean
 
 	@$(MAKE) --no-print-directory clean
 
-test: build
-	@$(GXX) main.cpp ./$(Library_Path)/$(Perceptron_Path)/$(PerceptronName).o ./$(Library_Path)/$(MLP_Path)/$(MLPName).o -o $(output) $(Flags)
+test: PREFILE
+	@$(GXX) main.cpp ./$(Library_Path)/$(Perceptron_Path)/$(PerceptronName).o ./$(Library_Path)/$(MLP_Path)/$(MLPName).o -o $(app) $(Flags)
 
-run: build
-	@$(GXX) main.cpp ./$(Library_Path)/$(Perceptron_Path)/$(PerceptronName).o ./$(Library_Path)/$(MLP_Path)/$(MLPName).o -o $(output) $(Flags) || $(MAKE) --no-print-directory clean
-	@./$(output) || $(MAKE) --no-print-directory clean 
+build: PREFILE
+
+ifeq (,$(wildcard $(output)))
+	@mkdir dist
+endif
+
+	@$(GXX) main.cpp ./$(Library_Path)/$(Perceptron_Path)/$(PerceptronName).o ./$(Library_Path)/$(MLP_Path)/$(MLPName).o -o $(output)/$(app) $(Flags) || $(MAKE) --no-print-directory clean
+	@$(output)/$(app) 
 
 	@$(MAKE) --no-print-directory clean
 	
 clean:
-	@rm -f ./$(Library_Path)/$(Perceptron_Path)/*.o ./$(Library_Path)/$(MLP_Path)/*.o *.o *.out *.exe ./Test/*.o ./Test/*.out ./Test/*.exe $(output) ./Test/$(output)
+	@rm -f ./$(Library_Path)/$(Perceptron_Path)/*.o ./$(Library_Path)/$(MLP_Path)/*.o *.o *.out *.exe ./Test/*.o ./Test/*.out ./Test/*.exe $(app) ./Test/$(app) $(output)/*
 endif
