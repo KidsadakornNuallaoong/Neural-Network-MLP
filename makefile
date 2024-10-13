@@ -25,6 +25,8 @@ ifeq ($(OS),Linux)
 else ifeq ($(OS),Windows_NT)
 	ifneq ($(filter x86_64 x86 i686 i386,$(arch)),)
 		GXX = g++
+#	else ifneq ($(filter arm64 aarch64 armv7l armv6l,$(arch)),)
+#		GXX = aarch64-linux-gnu-g++
 	else
 		$(error "Unknown Windows architecture: $(arch)")
 	endif
@@ -77,8 +79,9 @@ run: build
 	$(MAKE) --no-print-directory clean
 
 clean:
-	del /f /q $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o $(Library_Path)\$(MLP_Path)\$(MLPName).o *.o *.out *.exe $(app) .\Test\*.o .\Test\*.out .\Test\*.exe .\Test\$(app) $(output)\* 2>nul
-	rmdir $(output)
+	@del /f /q $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o $(Library_Path)\$(MLP_Path)\$(MLPName).o *.o *.out *.exe $(app) .\Test\*.o .\Test\*.out .\Test\*.exe .\Test\$(app) $(output)\* 2>nul || echo File not found
+
+	rmdir /s /q $(output) 2>nul || echo Directory not found
 else
 
 Flags= -fopenmp -Wall -pthread
