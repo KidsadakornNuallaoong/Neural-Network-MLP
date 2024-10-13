@@ -110,7 +110,7 @@ ifeq (,$(wildcard $(output)))
 	mkdir dist
 endif
 
-	$(GXX) main.cpp ./$(Library_Path)/$(Perceptron_Path)/$(PerceptronName).o ./$(Library_Path)/$(MLP_Path)/$(MLPName).o -o $(output)/$(app) $(Flags) || $(MAKE) --no-print-directory clean
+	$(GXX) main.cpp ./$(Library_Path)/$(Perceptron_Path)/$(PerceptronName).o ./$(Library_Path)/$(MLP_Path)/$(MLPName).o -o ./$(output)/$(app) $(Flags) || $(MAKE) --no-print-directory clean
 
 	echo "build file at: ./$(output)/$(app).exe : successfully!!"
 	
