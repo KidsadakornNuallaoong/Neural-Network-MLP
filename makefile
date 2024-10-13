@@ -79,7 +79,7 @@ run: build
 	$(MAKE) --no-print-directory clean
 
 clean:
-	@del /f /q $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o $(Library_Path)\$(MLP_Path)\$(MLPName).o *.o *.out *.exe $(app) .\Test\*.o .\Test\*.out .\Test\*.exe .\Test\$(app) $(output)\* 2>nul || echo File not found
+	del /f /q $(Library_Path)\$(Perceptron_Path)\$(PerceptronName).o $(Library_Path)\$(MLP_Path)\$(MLPName).o *.o *.out *.exe $(app) .\Test\*.o .\Test\*.out .\Test\*.exe .\Test\$(app) $(output)\* 2>nul || echo File not found
 
 	rmdir /s /q $(output) 2>nul || echo Directory not found
 else
